@@ -15,20 +15,77 @@
     a.card h2{margin:0 0 8px;font-size:20px;color:#3454d1}
     a.card span{color:#66708c;font-size:14px}
     code{background:#eef1f8;padding:2px 6px;border-radius:4px}
+    .urls{background:#fff;border:1px solid #e0e6f0;border-radius:16px;padding:22px;margin:0 0 24px}
+    .urls h2{margin:0 0 6px;font-size:19px;color:#1b2340}
+    .urls .hint{color:#7c86a3;font-size:13px;margin:0 0 16px}
+    .ipgroup{margin-bottom:16px}
+    .ipgroup .iplabel{font-weight:700;color:#3454d1;font-size:14px;margin-bottom:8px}
+    .urlrow{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
+    .urlrow .pg{width:92px;color:#5c6784;flex:none}
+    .urlrow a{color:#1b2340;text-decoration:none;font-family:Consolas,monospace;word-break:break-all}
+    .urlrow a:hover{color:#3454d1;text-decoration:underline}
+    .urlrow button{font-size:12px;padding:2px 9px;border:1px solid #cbd4e6;background:#f5f7fb;border-radius:6px;cursor:pointer;color:#5c6784}
+    .urlrow button:hover{border-color:#3454d1;color:#3454d1}
     footer{margin-top:36px;color:#8b94ad;font-size:13px}
   </style>
 </head>
 <body>
 <main>
   <h1>你画AI猜 · 本地离线版</h1>
-  <p class="lead">选择一个入口。所有页面都必须在同一局域网内访问本机地址。</p>
+  <p class="lead">选择一个入口。下面是每个页面的完整网址，可直接点击或复制；平板请用局域网 IP 那一组。</p>
+
+  <section class="urls" id="urls">
+    <h2>完整网址（可直接复制）</h2>
+    <p class="hint" id="urlHint">正在检测本机地址…</p>
+  </section>
+
   <div class="grid">
-    <a class="card" href="/draw"><h2>平板作画 /draw</h2><span>粗笔刷、触摸防滚动、400ms 压缩上传、断线自动重连</span></a>
-    <a class="card" href="/display"><h2>大屏展示 /display</h2><span>Top-5 中文类别、动态置信度条、翻转与锁定特效</span></a>
-    <a class="card" href="/host"><h2>主持控制 /host</h2><span>开始、锁定、重置、指定词、骗AI模式状态</span></a>
-    <a class="card" href="/api/status"><h2>运行状态 /api/status</h2><span>查看实际推理路线、帧丢弃统计、内存占用</span></a>
+    <a class="card" href="/draw"><h2>平板作画 /draw</h2><span>全屏画布、细笔刷、触摸防滚动、400ms 上传笔画坐标、断线重连</span></a>
+    <a class="card" href="/display"><h2>大屏展示 /display</h2><span>Top-5 中文类别、置信度条、AI 眼前的画、走势曲线、锁定特效</span></a>
+    <a class="card" href="/host"><h2>主持控制 /host</h2><span>选手计分 / 发奖榜、开始锁定重置、规则投屏、科普页入口</span></a>
+    <a class="card" href="/rules"><h2>规则投屏 /rules</h2><span>全屏展示玩法、算分规则、发奖说明；主持页可一键投到大屏</span></a>
+    <a class="card" href="/science"><h2>神经显微镜 /science</h2><span>逐层拆解 AI 推理：11 层真实激活热图、注意力矩阵、教学站点</span></a>
+    <a class="card" href="/api/status"><h2>运行状态 /api/status</h2><span>查看推理路线、帧丢弃统计、内存占用、选手与探针状态</span></a>
   </div>
-  <footer>不落盘 · 不上传 · 画布帧只在局域网 WebSocket 内传输</footer>
+  <footer>不落盘 · 不上传 · 笔画坐标只在局域网 WebSocket 内传输</footer>
 </main>
+<script>
+(function(){
+  var PAGES=[
+    {p:'平板作画',path:'/draw'},
+    {p:'大屏展示',path:'/display'},
+    {p:'主持控制',path:'/host'},
+    {p:'规则投屏',path:'/rules'},
+    {p:'神经显微镜',path:'/science'},
+    {p:'运行状态',path:'/api/status'}
+  ];
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function copy(t){
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t)}
+    else{var i=document.createElement('textarea');i.value=t;document.body.appendChild(i);i.select();document.execCommand('copy');document.body.removeChild(i)}
+  }
+  fetch('/api/hosts').then(function(r){return r.json()}).then(function(d){
+    var box=document.getElementById('urls'), hint=document.getElementById('urlHint');
+    var lan=d.ips.filter(function(ip){return ip!=='127.0.0.1'});
+    hint.textContent='本机 '+d.ips.length+' 个地址。笔记本用 127.0.0.1，平板用下面任一个局域网 IP（同一 Wi-Fi）。';
+    var html='';
+    d.ips.forEach(function(ip){
+      var isLocal=ip==='127.0.0.1';
+      html+='<div class="ipgroup"><div class="iplabel">'+(isLocal?'本机（笔记本自己）':'局域网 IP（平板用这个）')+' · '+esc(ip)+'</div>';
+      PAGES.forEach(function(pg){
+        var url='http://'+ip+':'+d.port+pg.path;
+        html+='<div class="urlrow"><span class="pg">'+pg.p+'</span>'+
+          '<a href="'+url+'" target="_blank">'+esc(url)+'</a>'+
+          '<button data-url="'+esc(url)+'">复制</button></div>';
+      });
+      html+='</div>';
+    });
+    box.innerHTML=html;
+    box.querySelectorAll('button[data-url]').forEach(function(b){
+      b.onclick=function(){copy(b.getAttribute('data-url'));var o=b.textContent;b.textContent='已复制';setTimeout(function(){b.textContent=o},1200)};
+    });
+  }).catch(function(){document.getElementById('urlHint').textContent='地址检测失败，请手动访问 http://127.0.0.1:3000'});
+})();
+</script>
 </body>
 </html>

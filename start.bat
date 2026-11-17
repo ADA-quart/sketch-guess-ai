@@ -9,6 +9,7 @@ if not exist "node_modules" (
   pause
   exit /b 1
 )
+node scripts\show-urls.js
 node server\index.js
 if errorlevel 1 (
   echo.

@@ -1,6 +1,7 @@
 'use strict';
 const http = require('http');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { WebSocketServer, WebSocket } = require('ws');
 const { PNG } = require('pngjs');
@@ -248,6 +249,19 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname === '/api/labels') return sendJSON(res, 200, engine.labelsForApi());
   if (pathname === '/api/words') return sendJSON(res, 200, words);
+
+  // 本机所有可访问地址，供首页展示完整网址（含平板要用的局域网 IP）
+  if (pathname === '/api/hosts') {
+    const port = Number(config.server.port) || 3000;
+    const ips = new Set(['127.0.0.1']);
+    const ifaces = os.networkInterfaces();
+    for (const name of Object.keys(ifaces)) {
+      for (const it of (ifaces[name] || [])) {
+        if (it.family === 'IPv4' && !it.internal) ips.add(it.address);
+      }
+    }
+    return sendJSON(res, 200, { port, ips: Array.from(ips), host: config.server.host });
+  }
 
   if (pathname === '/api/players' && req.method === 'GET') {
     return sendJSON(res, 200, players.snapshot());
