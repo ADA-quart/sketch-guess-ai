@@ -3,66 +3,115 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>神经显微镜 · CRNN V2 逐层拆解</title>
+  <title>神经显微镜 · CRNN V2 全层透视</title>
   <link rel="stylesheet" href="/science.css">
+  <link rel="stylesheet" href="/outdoor.css">
 </head>
-<body>
+<body class="overview">
 <div id="app">
   <header id="top">
-    <div>
-      <h1>神经显微镜 <span class="sub">CRNN V2 · 看懂 AI 怎么认出你的画</span></h1>
+    <div class="brand">
+      <div class="logo">◈</div>
+      <div>
+        <h1>神经显微镜</h1>
+        <p class="tagline">CRNN V2 · 一眼看全 AI 把笔画变成答案的 11 层</p>
+      </div>
+    </div>
+    <div id="answerReveal" class="answer">
+      <div class="answer-cap">AI 的最终答案</div>
+      <div class="answer-main"><span id="arWord">等待作画</span><span id="arPct" class="answer-pct"></span></div>
     </div>
     <div class="meta">
       <span id="connBadge" class="badge warn">等待连接</span>
       <span id="modeBadge" class="badge">新手模式</span>
-      <a href="/science.css" style="display:none"></a>
     </div>
   </header>
 
   <main id="main">
-    <!-- 左：当前帧 + 层激活可视化 -->
-    <section id="left">
-      <div class="panel">
-        <div class="ptitle">这一帧 AI 看到的笔画 <span id="frameSeq">#0</span></div>
-        <canvas id="strokeCanvas" width="520" height="360"></canvas>
+    <!-- ===== 全景总览：4×3 网格，11 层 + 答案卡 ===== -->
+    <section id="overview">
+      <div id="ovPhases">
+        <span class="ph g1">① 看笔画 · 提形状 <em>01–04</em></span>
+        <span class="ph g2">② 读顺序 · 记笔画 <em>05–06</em></span>
+        <span class="ph g3">③ 找关联 · 全局照看 <em>07–08</em></span>
+        <span class="ph g4">④ 下结论 · 汇聚答案 <em>09–11</em></span>
       </div>
-      <div class="panel grow">
-        <div class="ptitle" id="heatTitle">第 1 层激活</div>
-        <canvas id="heatCanvas" width="960" height="400"></canvas>
-        <div id="heatLegend" class="legend"><span>激活弱</span><div class="bar"></div><span>激活强</span></div>
-      </div>
+      <div id="ovGrid"></div>
     </section>
 
-    <!-- 右：层导航 + 讲解 + 答案 -->
-    <section id="right">
-      <div class="panel">
-        <div class="ptitle">逐层导航 <span class="hint">← → 切换 · 1-4 跳站点</span></div>
-        <div id="layerNav"></div>
+    <!-- ===== 单层深潜（覆盖层） ===== -->
+    <div id="deepdive">
+      <div id="ddTop">
+        <button id="backOverview">◀ 全景总览</button>
+        <span id="ddCrumb">第 1 层 · 输入编码</span>
+        <span class="spacer"></span>
+        <span id="ddHint">← → 切层 · 空格暂停 · 1-4 跳站点</span>
       </div>
-      <div class="panel" id="explainPanel">
-        <div class="ptitle" id="layerName">—</div>
-        <div class="layer-sub" id="layerSub">—</div>
-        <div class="layer-detail" id="layerDetail"></div>
-        <div class="engineer" id="engineer"></div>
+      <section id="pipeline" title="数据从左向右流过 11 层，点击任意节点可跳转">
+        <canvas id="flowCanvas"></canvas>
+        <div id="pipelineNodes"></div>
+      </section>
+      <div id="ddMain">
+        <section id="stage">
+          <div class="stage-head">
+            <span id="layerTag">第 1 / 11 层</span>
+            <span id="heatTitle">输入编码</span>
+          </div>
+          <div class="heat-stage">
+            <canvas id="heroCanvas" width="1280" height="660"></canvas>
+            <div id="legend" class="legend"><span>弱</span><div class="bar"></div><span>强</span></div>
+          </div>
+          <div class="stage-bottom">
+            <div class="stroke-box">
+              <div class="box-cap">AI 收到的原始笔画</div>
+              <canvas id="strokeCanvas" width="260" height="200"></canvas>
+            </div>
+            <div class="flow-note">
+              <div class="fn-cap">数据形状的变化</div>
+              <div class="fn-from" id="fnFromLabel">上一层的输出</div>
+              <div class="fn-arrow">↓<br><span>这一层加工</span><br>↓</div>
+              <div class="fn-to" id="fnTo">这一层的输出</div>
+            </div>
+            <div class="layer-point" id="layerPoint">这一层在做什么</div>
+          </div>
+        </section>
+        <aside id="side">
+          <div class="explain">
+            <div class="big-num" id="bigNum">01</div>
+            <div class="ex-head">
+              <div id="layerName">—</div>
+              <div id="layerSub" class="ex-sub">—</div>
+            </div>
+            <div id="layerDetail" class="ex-detail"></div>
+            <div id="stats" class="stats"></div>
+            <div id="engineer" class="engineer"></div>
+          </div>
+          <div class="answers">
+            <div class="sec-cap">AI 的答案 · 本帧真实输出 <span>TOP 10</span></div>
+            <div id="topList"></div>
+          </div>
+        </aside>
       </div>
-      <div class="panel grow">
-        <div class="ptitle">AI 的答案（本帧真实输出）</div>
-        <div id="topList"></div>
-      </div>
-    </section>
+    </div>
   </main>
 
   <footer id="bottom">
-    <button id="prevLayer">◀ 上一层</button>
-    <button id="nextLayer">下一层 ▶</button>
-    <button id="togglePause">暂停</button>
+    <button id="viewOverview" class="on">全景总览</button>
+    <button id="viewDetail">逐层深入</button>
+    <span class="spacer"></span>
+    <span id="ddControls">
+      <button id="prevLayer">◀ 上一层</button>
+      <button id="nextLayer">下一层 ▶</button>
+      <button id="autoTour" class="on">讲解中</button>
+      <button id="togglePause">暂停</button>
+    </span>
     <button id="toggleMode">工程师模式</button>
+    <button id="toggleOutdoor" class="outdoor-toggle" title="露天强光下切换高对比配色">☀ 露天模式</button>
     <span class="spacer"></span>
-    <span id="siteTabs"></span>
-    <span class="spacer"></span>
-    <span id="statusNote">在平板上作画，这里会实时拆解 AI 的推理过程</span>
+    <span id="statusNote">自动讲解中 · 无需操作 · 平板上作画即可实时更新</span>
   </footer>
 </div>
+<script src="/outdoor-toggle.js"></script>
 <script src="/science.js"></script>
 </body>
 </html>

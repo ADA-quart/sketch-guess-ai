@@ -28,6 +28,6 @@ for (const ip of ips) {
   if (ip === '127.0.0.1') continue;
   console.log('');
   console.log('  平板 / 同局域网设备（用这个 IP，不要用 localhost）：');
-  for (const [name, path] of pages.slice(0, 5)) console.log('    ' + name + pad(name) + 'http://' + ip + ':' + port + path);
+  for (const [name, path] of pages) console.log('    ' + name + pad(name) + 'http://' + ip + ':' + port + path);
 }
 console.log('');

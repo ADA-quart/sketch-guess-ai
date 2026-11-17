@@ -313,7 +313,9 @@
   }
 
   setInterval(() => {
-    $('clock').textContent = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    const now = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+    $('clock').textContent = now;
+    if ($('rulesClock')) $('rulesClock').textContent = now;
     if (endTime) {
       const left = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
       if (left <= 10 && left > 0 && playArea.classList.contains('show')) {

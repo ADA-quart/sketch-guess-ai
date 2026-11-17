@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>大屏 · 你画AI猜</title>
   <link rel="stylesheet" href="/display.css">
+  <link rel="stylesheet" href="/rules-inline.css">
+  <link rel="stylesheet" href="/outdoor.css">
 </head>
 <body>
 <div id="app">
@@ -16,6 +18,7 @@
     <div class="meta">
       <span id="playerBadge" class="badge" style="display:none">选手 —</span>
       <span id="routeBadge" class="badge">路线 —</span>
+      <button id="toggleOutdoor" class="outdoor-toggle" title="露天强光下切换高对比配色">☀ 露天</button>
       <span id="clock">--:--</span>
     </div>
   </header>
@@ -85,9 +88,75 @@
   </div>
 
   <div id="rulesOverlay">
-    <iframe src="/rules.html" title="游戏规则"></iframe>
+    <div class="rules-sheet">
+      <header>
+        <div class="logo">你画 <span>AI</span> 猜</div>
+        <div class="tag">游戏规则 · 发奖说明</div>
+      </header>
+
+      <main>
+        <section class="intro">
+          <h1>怎么玩</h1>
+          <p>一个人在平板上作画，AI 实时竞猜。AI 看不到题目，只看你画出来的每一笔。</p>
+          <div class="flow">
+            <div class="step"><b>1</b><span>看题作画</span><small>题目只显示在画师的平板上</small></div>
+            <div class="arrow">→</div>
+            <div class="step"><b>2</b><span>AI 实时猜</span><small>大屏显示前 5 个猜测与置信度</small></div>
+            <div class="arrow">→</div>
+            <div class="step"><b>3</b><span>结算得分</span><small>按结果给选手计分</small></div>
+          </div>
+        </section>
+
+        <section class="score">
+          <h1>怎么算分</h1>
+          <div class="cards">
+            <div class="card ai">
+              <div class="badge">AI 猜中</div>
+              <div class="cond">AI 第一位就认出</div>
+              <div class="pts"><span class="p-human">画师 +1</span><span class="p-ai">AI +2</span></div>
+              <div class="note">画得太传神，反而被抓住</div>
+            </div>
+            <div class="card narrow">
+              <div class="badge">险胜</div>
+              <div class="cond">AI 到第 2 / 3 位才认出</div>
+              <div class="pts"><span class="p-human">画师 +2</span><span class="p-ai">AI +1</span></div>
+              <div class="note">画面有辨识度，人类惊险拿下</div>
+            </div>
+            <div class="card fail">
+              <div class="badge">AI 翻车</div>
+              <div class="cond">没认出，但裁判判定「画得像」</div>
+              <div class="pts"><span class="p-human">画师 +2</span><span class="p-ai">AI +0</span></div>
+              <div class="note">是 AI 眼瞎，不是你画得差</div>
+            </div>
+            <div class="card abstract">
+              <div class="badge">无人得分</div>
+              <div class="cond">画得太抽象，AI 认不出</div>
+              <div class="pts"><span class="p-draw">画师 +0</span><span class="p-ai">AI +0</span></div>
+              <div class="note">画得糊不算赢，比的是画功</div>
+            </div>
+          </div>
+          <p class="fair">公平原则：<b>AI 没猜中 ≠ 人类赢</b>。画得太抽象导致认不出，交给主持人裁定，图个公平也图个乐。</p>
+        </section>
+
+        <section class="award">
+          <h1>怎么发奖</h1>
+          <div class="award-grid">
+            <div class="award-item"><span class="medal m1">冠军</span><b>发奖榜第 1 名</b><small>累计个人分最高</small></div>
+            <div class="award-item"><span class="medal m2">亚军</span><b>发奖榜第 2 名</b><small>个人分第二高</small></div>
+            <div class="award-item"><span class="medal m3">季军</span><b>发奖榜第 3 名</b><small>个人分第三高</small></div>
+          </div>
+          <p class="award-note">每位画师的分 = TA 每轮为「人类」拿下的分，<b>所有人加起来正好等于团队「人类」总分</b>。同分时，画得更少轮数的人排前面。分数实时更新在大屏与主持页。</p>
+        </section>
+
+        <footer>
+          <span>所有画面仅在本机与大屏之间运行 · 不上传 · 画面不落盘</span>
+          <span id="rulesClock">--:--</span>
+        </footer>
+      </main>
+    </div>
   </div>
 </div>
+<script src="/outdoor-toggle.js"></script>
 <script src="/display.js"></script>
 </body>
 </html>

@@ -1,0 +1,124 @@
+/* 露天强光模式：浅底深字高对比，抵抗环境光反光。
+   通过 body.outdoor 覆盖 science / display 两页的深色配色。 */
+
+/* ============ 科普页 /science ============ */
+body.outdoor {
+  --bg:#eef2f8; --panel:#ffffff; --line:#b9c6da; --txt:#10192c; --dim:#3f4f68;
+  --cyan:#0b6fa8; --gold:#9a6400; --magenta:#7a2ea8; --blue:#1f52c4; --green:#147a43;
+  background:#eef2f8 !important;
+  background-image:radial-gradient(1200px 700px at 15% -10%,#dbe7f7 0%,transparent 60%) !important;
+  color:#10192c !important;
+}
+/* 顶栏 */
+.outdoor h1{color:#0d1b33}
+.outdoor .tagline{color:#3f4f68}
+.outdoor .logo{color:#fff}
+.outdoor .answer{background:linear-gradient(135deg,#fff3d4,#fff) !important;border-color:#d9a93a !important;box-shadow:0 2px 14px rgba(120,80,0,.15) !important}
+.outdoor #arWord{color:#8a5a00;text-shadow:none}
+.outdoor .answer-pct{color:#10192c}
+.outdoor .answer-cap{color:#8a5a00}
+.outdoor .badge{border-color:#9aa9bf;color:#0b6fa8}
+.outdoor .badge.warn{color:#9a6400;border-color:#c99a3a}
+/* 面板与卡片 */
+.outdoor .panel,.outdoor .explain,.outdoor .answers,.outdoor #pipeline,.outdoor #stage,
+.outdoor .ov-card,.outdoor #ovTrack,.outdoor .stroke-box,.outdoor .flow-note,.outdoor .layer-point,
+.outdoor .heat-stage{background:#ffffff !important;border-color:#b9c6da !important;color:#10192c}
+.outdoor .ov-card{background:linear-gradient(155deg,#ffffff,#f2f6fc) !important}
+.outdoor .ov-card.spotlight{box-shadow:0 4px 20px rgba(20,40,80,.25) !important}
+.outdoor .ov-card.final{background:linear-gradient(155deg,#fff6dd,#fff) !important;border-color:#d9a93a !important}
+.outdoor .ptitle,.outdoor .ov-name,.outdoor #layerName,.outdoor #heatTitle,.outdoor #ddCrumb{color:#0d1b33}
+.outdoor .ov-sub,.outdoor .ex-sub,.outdoor .layer-sub,.outdoor .hint,.outdoor .stat-note{color:#3f4f68}
+.outdoor .ov-num,.outdoor #layerTag{color:#0b6fa8}
+.outdoor .ov-metric{color:#4a5a72;border-color:#ccd6e5}
+.outdoor .ov-metric b{color:#9a6400}
+.outdoor .big-num{color:rgba(11,111,168,.08)}
+.outdoor .ex-detail,.outdoor .stats span{color:#26344c}
+.outdoor .stats span{background:#eef3fa;border-color:#c4d0e0}
+.outdoor .stats b,.outdoor .sec-cap span,.outdoor .pct{color:#9a6400}
+.outdoor .layer-point{color:#26344c}
+.outdoor .box-cap,.outdoor .fn-cap{color:#9a6400}
+.outdoor .fn-from,.outdoor .fn-to{color:#0b6fa8}
+/* 分组阶段条 */
+.outdoor .ph{background:#e3ebf6;border-color:#aebdd2;color:#3f4f68}
+.outdoor .ph.g1.active,.outdoor .ph.g2.active,.outdoor .ph.g3.active,.outdoor .ph.g4.active{color:#fff}
+.outdoor .ph.g1.active{background:#0b6fa8}.outdoor .ph.g2.active{background:#1f52c4}
+.outdoor .ph.g3.active{background:#7a2ea8}.outdoor .ph.g4.active{background:#a86a00}
+/* Top榜 */
+.outdoor .trow .name{color:#10192c}
+.outdoor .trow .track{background:#dbe3ef}
+.outdoor .trow .fill{background:linear-gradient(90deg,#1f6fb0,#3aa8d8)}
+.outdoor .trow:nth-child(1) .fill{background:linear-gradient(90deg,#c07a00,#e8ae2a)}
+.outdoor .trow:nth-child(1) .name{color:#7a4e00}
+.outdoor .trow .rank{color:#5b6a82}
+/* 管线节点 */
+.outdoor .pnode .dot{background:#c4d0e0;border-color:#7f93b0}
+.outdoor .pnode .lb{color:#3f4f68}
+.outdoor .pnode.active .dot{background:#0b6fa8;border-color:#0b6fa8;box-shadow:0 0 10px rgba(11,111,168,.5);animation:none}
+.outdoor .pnode.active .lb{color:#0b6fa8;text-shadow:none}
+.outdoor .pnode.done .dot{background:#5aa0c4;border-color:#0b6fa8}
+/* 画布容器 */
+.outdoor #heroCanvas,.outdoor .ov-canvas{background:#f4f7fb}
+.outdoor #strokeCanvas{background:#f4f7fb}
+.outdoor .legend{background:rgba(255,255,255,.85);color:#3f4f68}
+/* 底栏按钮 */
+.outdoor button{background:#e3ebf6;border-color:#aebdd2;color:#10192c}
+.outdoor button:hover{background:#d3e0f0;border-color:#0b6fa8}
+.outdoor button.on{background:#0b6fa8;color:#fff;border-color:#0b6fa8}
+.outdoor #statusNote{color:#4a5a72}
+
+/* ============ 大屏页 /display ============ */
+body.outdoor #app{background:#eef2f8;color:#10192c}
+.outdoor #title{background:linear-gradient(90deg,#0b5fa8,#6a2ea8 60%,#b03070);-webkit-background-clip:text;background-clip:text}
+.outdoor #subtitle,.outdoor .meta,.outdoor .panel-title,.outdoor .think-stats,.outdoor .think-stats b{color:#3f4f68}
+.outdoor .think-stats b{color:#10192c}
+.outdoor .badge{border-color:#9aa9bf;color:#0b6fa8}
+.outdoor #waiting{color:#5b6a82}
+.outdoor #thought{background:#ffffff;border-color:#b9c6da}
+.outdoor #curve{background:#eef3fa}
+.outdoor #thumbEmpty{color:#5b6a82}
+.outdoor .rank{color:#5b6a82}
+.outdoor .row:nth-child(1) .rank{color:#9a6400}
+.outdoor .row:nth-child(2) .rank{color:#6b7a92}
+.outdoor .row:nth-child(3) .rank{color:#a06a3a}
+.outdoor .name{color:#16233a}
+.outdoor .row:nth-child(1) .name{color:#7a4e00}
+.outdoor .track{background:#dbe3ef}
+.outdoor .fill{background:linear-gradient(90deg,#1f6fb0,#3aa8d8)}
+.outdoor .row:nth-child(1) .fill{background:linear-gradient(90deg,#c07a00,#e8ae2a)}
+.outdoor .row:nth-child(3) .fill,.outdoor .row:nth-child(4) .fill,.outdoor .row:nth-child(5) .fill{background:linear-gradient(90deg,#5a5fc0,#8895d8)}
+.outdoor .pct{color:#3f4f68}
+.outdoor .row:nth-child(1) .pct{color:#9a6400}
+.outdoor #bottom{border-color:#b9c6da;color:#3f4f68}
+.outdoor #score{color:#16233a}
+.outdoor .status-ok{color:#147a43}
+/* 覆盖层（锁定/裁定/结算/断连）——保持深色但提高不透明度保证字清楚 */
+.outdoor #lockOverlay .lock-inner{color:#8a5a00;text-shadow:0 2px 12px rgba(255,255,255,.6)}
+.outdoor #judgeOverlay,.outdoor #resultOverlay,.outdoor #disconnectOverlay{background:rgba(238,242,248,.96)}
+.outdoor #judgeOverlay h2,.outdoor #resultOverlay h2{color:#9a6400}
+.outdoor #judgeOverlay p,.outdoor #resultDetail,.outdoor #resultScore,.outdoor #resultBoard,.outdoor .disc-inner h2,.outdoor .disc-inner p{color:#16233a}
+.outdoor #resultOverlay.ai #resultTitle{color:#9a6400;text-shadow:none}
+.outdoor #resultOverlay.narrow #resultTitle{color:#0b6fa8;text-shadow:none}
+.outdoor #resultOverlay.fail #resultTitle{color:#b03070;text-shadow:none}
+.outdoor #resultOverlay.abstract #resultTitle{color:#3f4f68;text-shadow:none}
+.outdoor #resultBoard .me,.outdoor #resultPlayer{color:#9a6400}
+/* 规则投屏（内联在 display） */
+.outdoor #rulesOverlay{background:#eef2f8}
+.outdoor #rulesOverlay .rules-sheet{--r-panel:#ffffff;--r-line:#b9c6da;--r-txt:#10192c;--r-dim:#3f4f68;
+  --r-gold:#9a6400;--r-cyan:#0b6fa8;--r-pink:#b03070;--r-gray:#55637a;--r-green:#147a43;color:#10192c}
+.outdoor #rulesOverlay .rules-sheet .step,
+.outdoor #rulesOverlay .rules-sheet .card,
+.outdoor #rulesOverlay .rules-sheet .award-item{background:#fff;border-color:#b9c6da}
+.outdoor #rulesOverlay .rules-sheet .logo{color:#0d1b33}
+.outdoor #rulesOverlay .rules-sheet .logo span{color:#0b6fa8}
+.outdoor #rulesOverlay .rules-sheet h1{color:#0d1b33}
+.outdoor #rulesOverlay .rules-sheet .tag{color:#3f4f68;border-color:#b9c6da}
+.outdoor #rulesOverlay .rules-sheet .step small,
+.outdoor #rulesOverlay .rules-sheet .cond,
+.outdoor #rulesOverlay .rules-sheet .note,
+.outdoor #rulesOverlay .rules-sheet footer{color:#3f4f68}
+.outdoor #rulesOverlay .rules-sheet .p-human{color:#147a43}
+.outdoor #rulesOverlay .rules-sheet .m1{color:#fff}
+
+/* 露天模式切换按钮本身（两种主题下都清晰） */
+.outdoor-toggle{border:1px solid #c99a3a !important;background:#fff6dd !important;color:#8a5a00 !important;font-weight:800}
+.outdoor .outdoor-toggle{background:#fff !important;color:#9a6400 !important}

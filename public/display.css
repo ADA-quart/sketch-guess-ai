@@ -111,7 +111,7 @@ html, body {
 #score { color: #bcd0ff; font-weight: 700; font-size: 19px; }
 #statusText.warn { color: #ffb84d; }
 
-/* 规则投放覆盖层：iframe 嵌入规则页，z-index 高于断连提示之外的所有层 */
-#rulesOverlay { position: fixed; inset: 0; display: none; background: #0a1024; z-index: 35; }
+/* 规则投放覆盖层：规则内容已内联进本页面，z-index 高于断连提示之外的所有层 */
+#rulesOverlay { position: fixed; inset: 0; display: none; z-index: 35; overflow: auto;
+  background: radial-gradient(1200px 700px at 50% -10%, #1a2a55 0%, #0a1024 60%); }
 #rulesOverlay.show { display: block; }
-#rulesOverlay iframe { width: 100%; height: 100%; border: 0; }
