@@ -1,0 +1,47 @@
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 3000,
+    "publicBaseUrl": ""
+  },
+  "round": {
+    "seconds": 70,
+    "minSeconds": 60,
+    "maxSeconds": 75,
+    "lockThreshold": 0.72,
+    "lockStableFrames": 4,
+    "lockHoldMs": 1400,
+    "lockGraceMs": 8000,
+    "lockMinStrokes": 1,
+    "lockMinPoints": 8,
+    "scoringMode": "fair",
+    "judgeTimeoutMs": 45000
+  },
+  "inference": {
+    "engine": "sequence",
+    "intervalMs": 400,
+    "topK": 5,
+    "inputSize": 28,
+    "dilateRadius": 5,
+    "decoyMode": false,
+    "decoySuppressFactor": 0.05,
+    "onnxInputName": "",
+    "onnxOutputName": "",
+    "onnxInputLayout": "NCHW",
+    "seqModelPath": "model/seq/model.onnx",
+    "seqLabelsPath": "model/seq/labels.json",
+    "seqLength": 128,
+    "simplifyEps": 0.01
+  },
+  "tablet": {
+    "canvasSize": 256,
+    "brushRadius": 2,
+    "brushMin": 1,
+    "brushMax": 8,
+    "thumbSize": 72
+  },
+  "display": {
+    "title": "AI 猜画大挑战",
+    "subtitle": "平板作画 · AI 实时竞猜"
+  }
+}

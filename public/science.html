@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>神经显微镜 · CRNN V2 逐层拆解</title>
+  <link rel="stylesheet" href="/science.css">
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div>
+      <h1>神经显微镜 <span class="sub">CRNN V2 · 看懂 AI 怎么认出你的画</span></h1>
+    </div>
+    <div class="meta">
+      <span id="connBadge" class="badge warn">等待连接</span>
+      <span id="modeBadge" class="badge">新手模式</span>
+      <a href="/science.css" style="display:none"></a>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 左：当前帧 + 层激活可视化 -->
+    <section id="left">
+      <div class="panel">
+        <div class="ptitle">这一帧 AI 看到的笔画 <span id="frameSeq">#0</span></div>
+        <canvas id="strokeCanvas" width="520" height="360"></canvas>
+      </div>
+      <div class="panel grow">
+        <div class="ptitle" id="heatTitle">第 1 层激活</div>
+        <canvas id="heatCanvas" width="960" height="400"></canvas>
+        <div id="heatLegend" class="legend"><span>激活弱</span><div class="bar"></div><span>激活强</span></div>
+      </div>
+    </section>
+
+    <!-- 右：层导航 + 讲解 + 答案 -->
+    <section id="right">
+      <div class="panel">
+        <div class="ptitle">逐层导航 <span class="hint">← → 切换 · 1-4 跳站点</span></div>
+        <div id="layerNav"></div>
+      </div>
+      <div class="panel" id="explainPanel">
+        <div class="ptitle" id="layerName">—</div>
+        <div class="layer-sub" id="layerSub">—</div>
+        <div class="layer-detail" id="layerDetail"></div>
+        <div class="engineer" id="engineer"></div>
+      </div>
+      <div class="panel grow">
+        <div class="ptitle">AI 的答案（本帧真实输出）</div>
+        <div id="topList"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer id="bottom">
+    <button id="prevLayer">◀ 上一层</button>
+    <button id="nextLayer">下一层 ▶</button>
+    <button id="togglePause">暂停</button>
+    <button id="toggleMode">工程师模式</button>
+    <span class="spacer"></span>
+    <span id="siteTabs"></span>
+    <span class="spacer"></span>
+    <span id="statusNote">在平板上作画，这里会实时拆解 AI 的推理过程</span>
+  </footer>
+</div>
+<script src="/science.js"></script>
+</body>
+</html>

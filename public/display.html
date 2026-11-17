@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>大屏 · 你画AI猜</title>
+  <link rel="stylesheet" href="/display.css">
+</head>
+<body>
+<div id="app">
+  <header id="top">
+    <div>
+      <h1 id="title">AI 猜画大挑战</h1>
+      <div id="subtitle">平板作画 · AI 实时竞猜</div>
+    </div>
+    <div class="meta">
+      <span id="playerBadge" class="badge" style="display:none">选手 —</span>
+      <span id="routeBadge" class="badge">路线 —</span>
+      <span id="clock">--:--</span>
+    </div>
+  </header>
+
+  <main id="board">
+    <div id="waiting">
+      <div class="big-icon">✎</div>
+      <div class="waiting-title">等待主持人开始本轮</div>
+      <div class="waiting-sub">AI 将根据平板传来的笔画实时猜测</div>
+    </div>
+
+    <div id="playArea">
+      <section id="thought">
+        <div class="panel-title">AI 眼前的画</div>
+        <div class="thumb-wrap">
+          <img id="thumb" alt="AI 看到的笔画">
+          <div id="thumbEmpty">等待笔画…</div>
+        </div>
+        <div class="panel-title curve-title">置信度走势</div>
+        <canvas id="curve" width="640" height="240"></canvas>
+        <div class="think-stats">
+          <span>分析帧 <b id="frameCount">0</b></span>
+          <span>耗时 <b id="inferMs">0</b>ms</span>
+          <span>榜首 <b id="top1zh">—</b></span>
+        </div>
+      </section>
+
+      <ol id="ranking">
+        <li class="row" data-rank="0"><span class="rank">1</span><div class="body"><div class="name">—</div><div class="track"><div class="fill"></div></div></div><span class="pct">0%</span></li>
+        <li class="row" data-rank="1"><span class="rank">2</span><div class="body"><div class="name">—</div><div class="track"><div class="fill"></div></div></div><span class="pct">0%</span></li>
+        <li class="row" data-rank="2"><span class="rank">3</span><div class="body"><div class="name">—</div><div class="track"><div class="fill"></div></div></div><span class="pct">0%</span></li>
+        <li class="row" data-rank="3"><span class="rank">4</span><div class="body"><div class="name">—</div><div class="track"><div class="fill"></div></div></div><span class="pct">0%</span></li>
+        <li class="row" data-rank="4"><span class="rank">5</span><div class="body"><div class="name">—</div><div class="track"><div class="fill"></div></div></div><span class="pct">0%</span></li>
+      </ol>
+    </div>
+  </main>
+
+  <footer id="bottom">
+    <span id="statusText">正在连接服务…</span>
+    <span id="curPlayerBar" style="display:none">当前选手：<b>—</b></span>
+    <span id="score">AI 0 : 0 人类 · 平局 0</span>
+    <span id="roundNo">第 0 轮</span>
+  </footer>
+
+  <div id="lockOverlay"><div class="lock-inner">AI 已锁定答案</div></div>
+
+  <div id="judgeOverlay">
+    <h2>AI 没认出来 —— 请主持裁定</h2>
+    <p>谜底是「<b id="judgeWord">—</b>」</p>
+    <p class="judge-hint">画得像 → AI 翻车，人类得分　·　画得太抽象 → 无人得分</p>
+  </div>
+
+  <div id="resultOverlay">
+    <div id="resultTitle"></div>
+    <div id="resultDetail"></div>
+    <div id="resultPlayer"></div>
+    <div id="resultBoard"></div>
+    <div id="resultScore"></div>
+  </div>
+
+  <div id="disconnectOverlay">
+    <div class="disc-inner">
+      <div class="spin"></div>
+      <h2 id="discTitle">与服务断开连接</h2>
+      <p id="discDetail">正在自动重连，请稍候…</p>
+    </div>
+  </div>
+
+  <div id="rulesOverlay">
+    <iframe src="/rules.html" title="游戏规则"></iframe>
+  </div>
+</div>
+<script src="/display.js"></script>
+</body>
+</html>

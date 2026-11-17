@@ -1,0 +1,49 @@
+*{box-sizing:border-box}
+:root{
+  --bg:#0a1024; --panel:#131c3a; --line:#243059; --txt:#e8efff; --dim:#9fb2dd;
+  --gold:#ffd166; --cyan:#7ee0ff; --pink:#ff8f9d; --gray:#aebfe4; --green:#7ee0a1;
+}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1200px 700px at 50% -10%,#1a2a55 0%,var(--bg) 60%);color:var(--txt);
+  font-family:"Microsoft YaHei",system-ui,sans-serif;overflow:auto}
+#app{max-width:1500px;margin:0 auto;padding:28px 46px 20px}
+header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:26px}
+.logo{font-size:40px;font-weight:900;letter-spacing:2px}
+.logo span{color:var(--cyan)}
+.tag{font-size:20px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:8px 20px}
+h1{font-size:30px;margin:0 0 18px;letter-spacing:1px}
+h1::before{content:"";display:inline-block;width:8px;height:26px;background:var(--cyan);border-radius:4px;margin-right:14px;vertical-align:-3px}
+section{margin-bottom:30px}
+.intro p,.award-note,.fair{color:var(--dim);font-size:20px;line-height:1.7;margin:0 0 18px}
+.flow{display:flex;align-items:stretch;gap:14px}
+.step{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px 22px;position:relative}
+.step b{position:absolute;top:-14px;left:20px;width:34px;height:34px;border-radius:50%;background:var(--cyan);color:#08122c;
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.step span{display:block;font-size:24px;font-weight:800;margin-top:8px}
+.step small{display:block;color:var(--dim);font-size:16px;margin-top:6px}
+.arrow{align-self:center;font-size:34px;color:var(--cyan);opacity:.7}
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--line);border-radius:16px;padding:20px}
+.card.ai{border-top-color:var(--gold)} .card.narrow{border-top-color:var(--cyan)}
+.card.fail{border-top-color:var(--pink)} .card.abstract{border-top-color:var(--gray)}
+.badge{font-size:24px;font-weight:900;margin-bottom:10px}
+.card.ai .badge{color:var(--gold)} .card.narrow .badge{color:var(--cyan)}
+.card.fail .badge{color:var(--pink)} .card.abstract .badge{color:var(--gray)}
+.cond{font-size:17px;color:var(--dim);min-height:48px;line-height:1.5}
+.pts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 10px}
+.pts span{font-size:19px;font-weight:800;padding:6px 12px;border-radius:8px}
+.p-human{background:rgba(126,224,161,.14);color:var(--green)}
+.p-ai{background:rgba(255,209,102,.14);color:var(--gold)}
+.p-draw{background:rgba(174,191,228,.14);color:var(--gray)}
+.note{font-size:15px;color:#7f93c4}
+.fair{margin-top:18px;border-left:4px solid var(--cyan);padding-left:16px}
+.fair b{color:var(--cyan)}
+.award-grid{display:flex;gap:16px}
+.award-item{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px 22px;display:flex;align-items:center;gap:16px}
+.medal{font-size:18px;font-weight:900;padding:8px 14px;border-radius:10px;color:#08122c}
+.m1{background:var(--gold)} .m2{background:#d7e2f7} .m3{background:#e0a86b}
+.award-item b{font-size:22px}
+.award-item small{display:block;color:var(--dim);font-size:15px;margin-top:4px}
+.award-note b{color:var(--gold)}
+footer{display:flex;justify-content:space-between;color:#6f81ad;font-size:15px;border-top:1px solid var(--line);padding-top:14px;margin-top:26px}
+@media(max-width:1100px){.cards{grid-template-columns:repeat(2,1fr)}#app{padding:20px}}

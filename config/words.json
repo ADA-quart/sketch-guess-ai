@@ -1,0 +1,302 @@
+[
+  {
+    "word": "飞机",
+    "class": "airplane",
+    "hint": "画机身+两侧机翼+尾翼，侧面视角最稳"
+  },
+  {
+    "word": "闹钟",
+    "class": "alarm clock",
+    "hint": "圆形钟面+顶部两个铃铛+底下两只脚"
+  },
+  {
+    "word": "救护车",
+    "class": "ambulance",
+    "hint": "长方形车身+车顶警灯+侧面十字"
+  },
+  {
+    "word": "苹果",
+    "class": "apple",
+    "hint": "圆轮廓+顶部一小段果柄+一片叶"
+  },
+  {
+    "word": "香蕉",
+    "class": "banana",
+    "hint": "弯月形，两条弧线围成，两头收尖"
+  },
+  {
+    "word": "篮球",
+    "class": "basketball",
+    "hint": "一个圆+几条交叉的弧线接缝"
+  },
+  {
+    "word": "自行车",
+    "class": "bicycle",
+    "hint": "两个分开的圆+车架三角+车把"
+  },
+  {
+    "word": "鸟",
+    "class": "bird",
+    "hint": "椭圆身体+尖喙+尾巴+一条腿"
+  },
+  {
+    "word": "书",
+    "class": "book",
+    "hint": "翻开的两页，像倒V或两片梯形"
+  },
+  {
+    "word": "公交车",
+    "class": "bus",
+    "hint": "长方形车身+一排窗+几个轮子"
+  },
+  {
+    "word": "蝴蝶",
+    "class": "butterfly",
+    "hint": "中间细身体+左右对称的大翅膀"
+  },
+  {
+    "word": "蛋糕",
+    "class": "cake",
+    "hint": "梯形/矩形蛋糕体+顶部蜡烛+底盘"
+  },
+  {
+    "word": "相机",
+    "class": "camera",
+    "hint": "方形机身+中间大镜头圆+顶部凸起"
+  },
+  {
+    "word": "汽车",
+    "class": "car",
+    "hint": "侧面车身+车顶+两个轮子"
+  },
+  {
+    "word": "猫",
+    "class": "cat",
+    "hint": "圆脸+两只尖耳朵+胡须，正面最像"
+  },
+  {
+    "word": "椅子",
+    "class": "chair",
+    "hint": "靠背+坐面+四条腿，侧面视角"
+  },
+  {
+    "word": "时钟",
+    "class": "clock",
+    "hint": "圆形钟面+两根指针即可，别画数字"
+  },
+  {
+    "word": "云",
+    "class": "cloud",
+    "hint": "几段圆弧叠出蓬松轮廓，底边平"
+  },
+  {
+    "word": "沙发",
+    "class": "couch",
+    "hint": "长方形靠背+扶手+坐垫"
+  },
+  {
+    "word": "狗",
+    "class": "dog",
+    "hint": "椭圆脸+两只垂耳+鼻子+舌头"
+  },
+  {
+    "word": "海豚",
+    "class": "dolphin",
+    "hint": "流线身体+背鳍+尖嘴，跃起姿态"
+  },
+  {
+    "word": "龙",
+    "class": "dragon",
+    "hint": "长身体+角+爪+尾巴"
+  },
+  {
+    "word": "大象",
+    "class": "elephant",
+    "hint": "大耳朵+长鼻子+粗身体+四条腿"
+  },
+  {
+    "word": "眼睛",
+    "class": "eye",
+    "hint": "杏仁形轮廓+中间圆瞳孔"
+  },
+  {
+    "word": "鱼",
+    "class": "fish",
+    "hint": "椭圆身体+三角尾巴，侧面"
+  },
+  {
+    "word": "花",
+    "class": "flower",
+    "hint": "中心圆+一圈花瓣+茎和叶"
+  },
+  {
+    "word": "吉他",
+    "class": "guitar",
+    "hint": "葫芦形琴身+长琴颈+琴弦"
+  },
+  {
+    "word": "锤子",
+    "class": "hammer",
+    "hint": "T形，横的锤头+竖的柄"
+  },
+  {
+    "word": "星星",
+    "class": "star",
+    "hint": "五角星，一笔画的尖角轮廓"
+  },
+  {
+    "word": "直升机",
+    "class": "helicopter",
+    "hint": "机身+顶部旋翼+尾巴小旋翼"
+  },
+  {
+    "word": "房子",
+    "class": "house",
+    "hint": "方形墙+三角屋顶+门和窗"
+  },
+  {
+    "word": "冰淇淋",
+    "class": "ice cream",
+    "hint": "甜筒三角+上面一团圆球"
+  },
+  {
+    "word": "钥匙",
+    "class": "key",
+    "hint": "圆头+长杆+末端齿"
+  },
+  {
+    "word": "刀",
+    "class": "knife",
+    "hint": "刀身+刀柄，侧面轮廓"
+  },
+  {
+    "word": "灯泡",
+    "class": "light bulb",
+    "hint": "圆润灯泡轮廓+下面螺纹底座；里面灯丝画简单点，别涂太满留白"
+  },
+  {
+    "word": "狮子",
+    "class": "lion",
+    "hint": "圆脸+一圈鬃毛（放射线）"
+  },
+  {
+    "word": "月亮",
+    "class": "moon",
+    "hint": "弯月牙，两段弧线围成"
+  },
+  {
+    "word": "山",
+    "class": "mountain",
+    "hint": "几个连着的三角形峰"
+  },
+  {
+    "word": "老鼠",
+    "class": "mouse",
+    "hint": "圆身体+尖鼻+两只圆耳+长尾巴"
+  },
+  {
+    "word": "摩托车",
+    "class": "motorcycle",
+    "hint": "两个轮子+车架+车把，侧面"
+  },
+  {
+    "word": "葡萄",
+    "class": "grapes",
+    "hint": "一串小圆+顶部茎和叶"
+  },
+  {
+    "word": "画笔",
+    "class": "paintbrush",
+    "hint": "长杆+顶端一撮笔毛"
+  },
+  {
+    "word": "棕榈树",
+    "class": "palm tree",
+    "hint": "细长树干+顶部散开的叶片"
+  },
+  {
+    "word": "钢琴",
+    "class": "piano",
+    "hint": "长方形琴身+一排黑白键"
+  },
+  {
+    "word": "披萨",
+    "class": "pizza",
+    "hint": "扇形/三角块+上面几个圆点配料"
+  },
+  {
+    "word": "彩虹",
+    "class": "rainbow",
+    "hint": "几层同心的弧形彩带"
+  },
+  {
+    "word": "闪电",
+    "class": "lightning",
+    "hint": "折线锯齿形，Z字形"
+  },
+  {
+    "word": "三明治",
+    "class": "sandwich",
+    "hint": "三角形+夹层横线"
+  },
+  {
+    "word": "剪刀",
+    "class": "scissors",
+    "hint": "两个圆环+交叉的两片刀刃"
+  },
+  {
+    "word": "轮船",
+    "class": "ship",
+    "hint": "船体+上层建筑+烟囱"
+  },
+  {
+    "word": "笑脸",
+    "class": "smiley face",
+    "hint": "大圆脸+两只眼+上扬的嘴"
+  },
+  {
+    "word": "蜗牛",
+    "class": "snail",
+    "hint": "螺旋壳+软身体+两根触角"
+  },
+  {
+    "word": "太阳",
+    "class": "sun",
+    "hint": "圆+四周放射的短线"
+  },
+  {
+    "word": "桌子",
+    "class": "table",
+    "hint": "桌面+四条腿，正面或侧面"
+  },
+  {
+    "word": "火车",
+    "class": "train",
+    "hint": "长方形车厢+轮子+烟囱"
+  },
+  {
+    "word": "树",
+    "class": "tree",
+    "hint": "树干+一团树冠（圆或三角）"
+  },
+  {
+    "word": "雨伞",
+    "class": "umbrella",
+    "hint": "半圆伞面+伞骨线+弯钩伞柄"
+  },
+  {
+    "word": "手表",
+    "class": "watch",
+    "hint": "圆形表盘（别画方形）+上下两根表带+指针"
+  },
+  {
+    "word": "西瓜",
+    "class": "watermelon",
+    "hint": "圆/半圆+外皮条纹，切面画籽"
+  },
+  {
+    "word": "斑马",
+    "class": "zebra",
+    "hint": "马的轮廓+身上条纹"
+  }
+]

@@ -1,0 +1,26 @@
+# 依赖与日志
+node_modules/
+npm-debug.log*
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+coverage/
+
+# 浏览器与运行时缓存
+.display-browser-profile/
+data/
+
+# 项目元数据
+.workbuddy/
+
+# 大文件：原始 Keras 权重不入库（运行只需 ONNX；要重转见 docs/WINDOWS-DEPLOY.md）
+model/seq/*.keras
+model/weights/
+model/*.onnx
+assets/*.mp4
+
+# 临时文件
+*.tmp
+*.tmp.*

@@ -1,0 +1,24 @@
+{
+  "name": "draw-ai-guess-offline",
+  "version": "1.0.0",
+  "private": true,
+  "description": "本地离线「你画AI猜」：平板绘画 → WebSocket → 后端推理 → 大屏 Top-5",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "stress": "node scripts/stress-test.js"
+  },
+  "engines": {
+    "node": ">=18 <23"
+  },
+  "dependencies": {
+    "pngjs": "^7.0.0",
+    "ws": "^8.18.0"
+  },
+  "optionalDependencies": {
+    "@tensorflow/tfjs": "^4.22.0",
+    "@tensorflow/tfjs-node": "^4.22.0",
+    "onnxruntime-node": "^1.19.0"
+  }
+}

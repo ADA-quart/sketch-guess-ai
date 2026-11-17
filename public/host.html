@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>主持控制 · 你画AI猜</title>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#f3f6fc;color:#1c2745;font-family:"Microsoft YaHei",system-ui,sans-serif}
+    main{max-width:760px;margin:40px auto;padding:0 20px}
+    h1{font-size:30px;margin:0 0 4px}
+    .sub{color:#6b7694;margin:0 0 26px}
+    .panel{background:#fff;border:1px solid #dde4f1;border-radius:14px;padding:22px;margin-bottom:18px;box-shadow:0 6px 20px rgba(30,50,100,.05)}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    button{border:0;border-radius:9px;padding:11px 20px;font-size:15px;font-weight:700;cursor:pointer}
+    .primary{background:#3454d1;color:#fff}
+    .warn{background:#e07a2d;color:#fff}
+    .ghost{background:#e9edf7;color:#33406a}
+    .like{background:#2e9e6b;color:#fff;font-size:17px;padding:14px 22px}
+    .unlike{background:#69769a;color:#fff;font-size:17px;padding:14px 22px}
+    select,input{padding:10px;border:1px solid #cbd4e6;border-radius:8px;font-size:15px;min-width:180px}
+    .kv{display:grid;grid-template-columns:120px 1fr;gap:8px 14px;font-size:14px;line-height:1.6}
+    .kv span:first-child{color:#7a86a6}
+    #log{height:160px;overflow:auto;background:#141c33;color:#bcd0ff;border-radius:9px;padding:12px;font:13px/1.7 Consolas,monospace}
+    .pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12px;background:#e8f3e6;color:#38713a}
+    .pill.off{background:#fdeaea;color:#a33b45}
+    #judgePanel{display:none;border:2px solid #e0a83d;background:#fffaf0}
+    #judgePanel.show{display:block}
+    #judgePanel h2{margin:0 0 6px;font-size:21px;color:#a86b12}
+    #judgePanel p{margin:0 0 16px;color:#6b5a3a;font-size:14px}
+    .panel h2.sec{margin:0 0 14px;font-size:18px;color:#1c2745}
+    #playerList{display:flex;flex-direction:column;gap:8px;margin:14px 0}
+    .player{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid #e3e9f5;border-radius:10px;cursor:pointer;transition:.12s}
+    .player:hover{background:#f6f8ff}
+    .player.current{border-color:#3454d1;background:#eef2ff}
+    .player .pname{font-weight:700;flex:1}
+    .player .pscore{font-variant-numeric:tabular-nums;color:#3454d1;font-weight:800}
+    .player .pscore small{color:#8893b0;font-weight:400}
+    .player .rank{margin-left:6px;color:#e07a2d;font-weight:800}
+    .player .del{background:#fdeaea;color:#a33b45;border-radius:6px;padding:4px 10px;font-size:13px}
+    .empty{color:#98a2bd;font-size:14px;padding:8px 0}
+    .addrow input{min-width:0;flex:1}
+    .switch{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:#4a5680}
+    .switch input{min-width:0;width:18px;height:18px}
+  </style>
+</head>
+<body>
+<main>
+  <h1>主持控制台</h1>
+  <p class="sub">开始 / 锁定 / 重置回合，以及 AI 未命中时的裁判判定。</p>
+
+  <section class="panel" id="judgePanel">
+    <h2>需要裁定本轮</h2>
+    <p>谜底：<b id="judgeWord">—</b>　·　AI 猜测：<b id="judgeGuess">—</b></p>
+    <div class="row">
+      <button class="like" id="judgeLike">画得像 · AI 翻车，人类得分</button>
+      <button class="unlike" id="judgeUnlike">画得太抽象 · 无人得分</button>
+    </div>
+  </section>
+
+  <section class="panel" id="playersPanel">
+    <h2 class="sec">选手与发奖榜</h2>
+    <div class="addrow row">
+      <input id="newPlayer" placeholder="输入选手名字/编号" maxlength="24">
+      <button class="ghost" id="addPlayer">+ 添加选手</button>
+      <label class="switch"><input type="checkbox" id="autoRotate" checked>自动轮转</label>
+      <button class="ghost" id="clearPlayers">清空重开</button>
+    </div>
+    <div id="playerList"></div>
+    <div id="rankingBox" class="kv" style="border-top:1px dashed #dde4f1;padding-top:12px"></div>
+  </section>
+
+  <section class="panel">
+    <div class="row">
+      <select id="word"><option value="">随机出题</option></select>
+      <button class="primary" id="start">开始本轮</button>
+      <button class="warn" id="lock">立即锁定结算</button>
+      <button class="ghost" id="reset">重置</button>
+    </div>
+    <p style="margin:10px 0 0;color:#8893b0;font-size:13px">当前作画选手：<b id="curPlayer" style="color:#3454d1">未设置</b>　·　开始本轮时若开了「自动轮转」会自动切到下一位</p>
+    <div class="row" style="margin-top:14px;border-top:1px dashed #dde4f1;padding-top:14px">
+      <span style="color:#7a86a6;font-size:14px">大屏投放：</span>
+      <button class="ghost" id="showRules">投屏游戏规则</button>
+      <button class="ghost" id="showPlay">切回对战画面</button>
+      <a href="/science" target="_blank" style="text-decoration:none"><button class="ghost">打开科普页 ↗</button></a>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="kv">
+      <span>实际推理路线</span><strong id="route">检测中…</strong>
+      <span>结算模式</span><strong id="mode">—</strong>
+      <span>骗AI模式</span><span id="decoy">—</span>
+      <span>平板 / 大屏</span><span id="clients">—</span>
+      <span>当前回合</span><span id="round">未开始</span>
+      <span>比分</span><span id="score">AI 0 : 0 人类</span>
+      <span>帧统计</span><span id="stats">—</span>
+      <span>内存</span><span id="mem">—</span>
+    </div>
+  </section>
+
+  <section class="panel"><div id="log"></div></section>
+</main>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  let ws=null;
+  function log(t){const d=document.createElement('div');d.textContent='['+new Date().toLocaleTimeString('zh-CN',{hour12:false})+'] '+t;$('log').appendChild(d);$('log').scrollTop=$('log').scrollHeight;}
+
+  fetch('/api/words').then(r=>r.json()).then(list=>{
+    list.forEach(w=>{const o=document.createElement('option');o.value=w.word;o.textContent=w.word+'  ('+w.class+')';$('word').appendChild(o);});
+  }).catch(()=>{});
+
+  function connect(){
+    const proto=location.protocol==='https:'?'wss:':'ws:';
+    ws=new WebSocket(proto+'//'+location.host+'/ws/host');
+    ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(err){return}
+      if(m.type==='players'){ renderPlayers(m); return; }
+      if(m.type==='hello'||m.type==='roundStart'||m.type==='roundEnd'||m.type==='roundReset'||m.type==='needJudge'){
+        if(m.players) renderPlayers(m);
+        if(m.round) renderRound(m.round);
+        if(m.scoreboard) renderScore(m.scoreboard);
+        if(m.type==='roundStart'){$('judgePanel').classList.remove('show');log('回合开始 #'+m.round.id);}
+        if(m.type==='needJudge'){
+          $('judgePanel').classList.add('show');
+          $('judgeWord').textContent=m.target?m.target.word:'—';
+          $('judgeGuess').textContent=m.top5&&m.top5[0]?m.top5[0].zh:'无';
+          log('AI 未命中，等待裁判裁定');
+        }
+        if(m.type==='roundEnd'){$('judgePanel').classList.remove('show');log('结算：'+m.result.title);}
+        if(m.type==='roundReset')$('judgePanel').classList.remove('show');
+      }
+    };
+    ws.onclose=()=>setTimeout(connect,1500);
+  }
+  function renderRound(r){$('round').textContent=r.awaitingJudge?'等待裁判裁定':(r.active?('第 '+r.id+' 轮进行中'+(r.locked?' · 已锁定':'')):'未进行');}
+  function renderScore(s){$('score').textContent='AI '+s.ai+' : '+s.human+' 人类 · 平局 '+(s.draws||0);}
+
+  function renderPlayers(m){
+    const ps=m.players||[], cur=m.currentId;
+    $('autoRotate').checked=!!m.autoRotate;
+    const list=$('playerList');
+    list.innerHTML='';
+    if(!ps.length){list.innerHTML='<div class="empty">还没添加选手，先在上面输入名字添加吧。</div>';}
+    const rankMap={};(m.ranking||[]).forEach(r=>rankMap[r.id]=r.rank);
+    ps.forEach(p=>{
+      const el=document.createElement('div');
+      el.className='player'+(p.id===cur?' current':'');
+      el.innerHTML='<span class="pname">'+(p.id===cur?'✎ ':'')+esc(p.name)+'</span>'+
+        '<span class="rank">'+(rankMap[p.id]?'第'+rankMap[p.id]+'名':'')+'</span>'+
+        '<span class="pscore">'+p.score+' <small>分 / '+p.rounds+'轮</small></span>'+
+        '<button class="del" data-id="'+p.id+'">删</button>';
+      el.onclick=ev=>{
+        if(ev.target.classList.contains('del'))return;
+        api('/api/players/select',{id:p.id});
+      };
+      el.querySelector('.del').onclick=ev=>{ev.stopPropagation();api('/api/players/remove',{id:p.id});};
+      list.appendChild(el);
+    });
+    const curP=ps.find(p=>p.id===cur);
+    $('curPlayer').textContent=curP?curP.name:'未设置';
+    const box=$('rankingBox');
+    if(!(m.ranking||[]).length){box.innerHTML='';return;}
+    const medal=r=>r.rank===1?'冠军':r.rank===2?'亚军':r.rank===3?'季军':('第'+r.rank+'名');
+    box.innerHTML='<span style="color:#7a86a6">发奖榜</span><span>'+m.ranking.slice(0,5).map(r=>
+      medal(r)+' '+esc(r.name)+' <b>'+r.score+'</b>分'
+    ).join('　')+'</span>';
+  }
+  function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+  function api(url,body){fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body||{})}).catch(()=>{});}
+
+  $('addPlayer').onclick=()=>{const v=$('newPlayer').value.trim();if(!v)return;api('/api/players/add',{name:v});$('newPlayer').value='';};
+  $('newPlayer').addEventListener('keydown',e=>{if(e.key==='Enter')$('addPlayer').click();});
+  $('autoRotate').onchange=e=>api('/api/players/autorotate',{enabled:e.target.checked});
+  $('clearPlayers').onclick=()=>{if(confirm('确定清空所有选手和分数？此操作不可撤销。'))api('/api/players/clear',{});};
+  $('showRules').onclick=()=>api('/api/view',{view:'rules'});
+  $('showPlay').onclick=()=>api('/api/view',{view:'play'});
+
+  $('start').onclick=()=>{const w=$('word').value;fetch('/api/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({word:w})}).then(()=>log('已发送开始指令'+(w?'：'+w:'')));};
+  $('lock').onclick=()=>{fetch('/api/lock',{method:'POST'}).then(()=>log('已发送锁定结算指令'));};
+  $('reset').onclick=()=>{fetch('/api/reset',{method:'POST'}).then(()=>log('已重置'));};
+  function judge(v){fetch('/api/judge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({verdict:v})}).then(r=>{if(!r.ok)log('裁定失败：本轮可能已结算');});}
+  $('judgeLike').onclick=()=>judge('like');
+  $('judgeUnlike').onclick=()=>judge('unlike');
+
+  function poll(){
+    fetch('/api/status').then(r=>r.json()).then(s=>{
+      $('route').textContent=s.route;
+      $('mode').textContent=s.scoringMode==='classic'?'经典（未命中即人类得分）':'公平（未命中需裁定）';
+      $('decoy').innerHTML='<span class="pill'+(s.decoyMode?'':' off')+'">'+(s.decoyMode?'开启':'关闭')+'</span>';
+      $('clients').textContent=s.clients.draw+' 台 / '+s.clients.display+' 台';
+      renderRound(s.round);
+      renderScore(s.scoreboard);
+      $('stats').textContent='入帧 '+s.stats.framesIn+' · 丢弃 '+s.stats.framesDropped+' · 推理 '+s.stats.inferences+' 次 · 平均 '+s.stats.avgInferMs+'ms · 错误 '+s.stats.errors;
+      $('mem').textContent='RSS '+s.memMB.rss+'MB / Heap '+s.memMB.heapUsed+'MB';
+    }).catch(()=>{});
+  }
+  setInterval(poll,1500);poll();connect();
+})();
+</script>
+</body>
+</html>

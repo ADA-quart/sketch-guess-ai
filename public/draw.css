@@ -1,0 +1,94 @@
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  overflow: hidden; overscroll-behavior: none;
+  touch-action: none; user-select: none; -webkit-user-select: none;
+  background: #e9edf5; color: #1b2340;
+  font-family: "Microsoft YaHei", system-ui, sans-serif;
+}
+#app { display: flex; flex-direction: column; width: 100%; height: 100%; }
+
+/* 顶栏尽量薄，把屏幕留给画布 */
+#bar {
+  flex: 0 0 auto; display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 14px; background: #fff; border-bottom: 1px solid #dde3ef;
+  min-height: 44px;
+}
+.brand { font-size: 15px; font-weight: 700; white-space: nowrap; }
+.brand small { font-size: 11px; font-weight: 400; color: #66708c; margin-left: 8px; }
+.brushctl { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #4a5573; white-space: nowrap; }
+.brushctl input[type=range] { width: 150px; accent-color: #3454d1; }
+#brushVal { display: inline-block; min-width: 20px; text-align: center; font-weight: 700; color: #27418f; }
+.brushctl button { padding: 6px 12px; font-size: 17px; line-height: 1; }
+.actions { display: flex; gap: 8px; }
+button {
+  border: 1px solid #c9d2e6; background: #fff; color: #27418f;
+  border-radius: 9px; padding: 7px 14px; font-size: 14px; font-weight: 600;
+  touch-action: manipulation;
+}
+button:active { background: #eaf0ff; }
+#finish { background: #3454d1; color: #fff; border-color: #3454d1; }
+
+/* 画布填满剩余空间，不再强制 1:1，适配 2880×1800 等横屏平板 */
+#stage {
+  flex: 1 1 auto; position: relative; min-height: 0; min-width: 0;
+  padding: 6px; display: flex;
+}
+#c {
+  display: block; width: 100%; height: 100%;
+  background: #fff; border: 2px solid #34406b; border-radius: 8px;
+  touch-action: none; cursor: crosshair;
+}
+
+/* 题面与计时浮在画布上方，不占用布局高度 */
+#prompt {
+  position: fixed; left: 50%; top: 56px; transform: translateX(-50%);
+  background: rgba(27, 35, 64, .9); color: #fff;
+  border-radius: 12px; padding: 7px 20px; text-align: center;
+  pointer-events: none; opacity: 0; transition: opacity .25s;
+  min-width: 170px; z-index: 5;
+}
+#prompt.show { opacity: 1; }
+.prompt-label { font-size: 10px; opacity: .7; letter-spacing: 3px; }
+#word { font-size: 24px; font-weight: 800; line-height: 1.15; }
+#hint { font-size: 12px; color: #9fe3ff; line-height: 1.35; margin-top: 3px; max-width: 300px; }
+#hint:empty { display: none; }
+#timer { font-size: 13px; color: #ffd166; font-variant-numeric: tabular-nums; }
+
+#lockBanner {
+  position: fixed; left: 0; right: 0; top: 45%; text-align: center;
+  font-size: 22px; font-weight: 800; color: #fff; background: #e07a2d;
+  padding: 14px; display: none; z-index: 20;
+}
+#lockBanner.show { display: block; animation: pulse .7s infinite alternate; }
+@keyframes pulse { to { opacity: .65; } }
+
+#result {
+  position: fixed; inset: 0; background: rgba(20, 28, 52, .94); color: #fff;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 30px; z-index: 30;
+}
+#result.show { display: flex; }
+#resultTitle { font-size: 46px; font-weight: 900; }
+#resultDetail { font-size: 19px; margin-top: 16px; opacity: .92; line-height: 1.6; max-width: 80%; }
+#result.abstract #resultTitle { color: #9fb4dd; }
+
+#judgingOverlay {
+  position: fixed; inset: 0; background: rgba(20, 28, 52, .92); color: #fff;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 30px; z-index: 25;
+}
+#judgingOverlay.show { display: flex; }
+#judgingOverlay h2 { font-size: 38px; margin: 0 0 12px; color: #ffd166; }
+#judgingOverlay p { font-size: 18px; opacity: .9; }
+
+#fallback {
+  position: fixed; inset: 0; background: #12182b; color: #fff;
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 24px; z-index: 40;
+}
+#fallback.show { display: flex; }
+#fallback video { width: min(90%, 720px); border-radius: 12px; }
+.fallback-text h2 { font-size: 30px; color: #ffb84d; }
+.fallback-text p { font-size: 17px; line-height: 1.6; }
+.fallback-text .small { font-size: 13px; opacity: .6; }
