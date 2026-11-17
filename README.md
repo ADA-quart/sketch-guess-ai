@@ -2,6 +2,8 @@
 
 平板作画 → WebSocket 上传笔画 → 本机推理 → 广播到大屏。平板走局域网，大屏与主持页就在运行服务的这台笔记本上（HDMI 扩展屏）直接打开。无云端、无落盘。
 
+> **开源协议：Apache-2.0**（见 [LICENSE](LICENSE)）。可商用、有专利保护；转载请保留版权声明。第三方模型来源与署名见 [NOTICE](NOTICE)——默认基模 CRNN V2 来自 [DucTai368/AI_sketch-recognition-v2](https://huggingface.co/DucTai368/AI_sketch-recognition-v2)（Apache-2.0），降级备份的 DoodleNet 来自 [yining1023/doodleNet](https://github.com/yining1023/doodleNet)。
+
 ## 1. 架构
 
 ```

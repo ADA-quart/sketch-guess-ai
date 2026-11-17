@@ -1,0 +1,38 @@
+你画AI猜 (sketch-guess-ai)
+Copyright 2026 ADA-quart
+
+This product includes software and model weights from third parties,
+listed below. Their respective license terms still apply.
+
+--------------------------------------------------------------------------------
+1. CRNN V2 笔画序列识别模型（默认推理基模）
+--------------------------------------------------------------------------------
+   Files:     model/seq/model.onnx, model/seq/model-scope.onnx
+   Source:    https://huggingface.co/DucTai368/AI_sketch-recognition-v2
+   Author:    DucTai368
+   License:   Apache License 2.0
+   Note:      Converted from best_model_v2.keras to ONNX via scripts/convert_seq_onnx.py.
+              The model-scope.onnx variant adds intermediate-layer outputs for
+              educational visualization; model weights are unchanged.
+
+--------------------------------------------------------------------------------
+2. DoodleNet 345 类 TFJS 栅格模型（降级备份路线）
+--------------------------------------------------------------------------------
+   Files:     model/model.json, model/group1-shard1of1.bin, model/labels.txt
+   Source:    https://github.com/yining1023/doodleNet (model-tfjs/)
+   Author:    yining1023
+   License:   See upstream repository. Model trained on Google QuickDraw dataset.
+   Note:      Minor compatibility fix applied to model.json (removed a stray
+              batch_input_shape from a non-input layer).
+
+--------------------------------------------------------------------------------
+3. Google QuickDraw 数据集
+--------------------------------------------------------------------------------
+   Used as the training data of the above models. QuickDraw is a Google
+   creative project; dataset made publicly available by Google.
+
+--------------------------------------------------------------------------------
+4. Runtime / build dependencies (via npm, not redistributed in this repo)
+--------------------------------------------------------------------------------
+   onnxruntime-node, @tensorflow/tfjs, ws, pngjs — each under its own license.
+   See package.json and the respective package LICENSE files.
