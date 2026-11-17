@@ -58,7 +58,7 @@ npm install
 start.bat
 ```
 
-模型已随项目放在 `model/seq/model.onnx`（20MB），不需要另外下载，也不需要 Python。确保 `onnxruntime-node` 已安装（在 `package.json` 的可选依赖里，`npm install` 会装）。旧的 DoodleNet 栅格模型仍在 `model/`，作为降级备份保留。
+模型已随项目放在 `model/seq/model.onnx`（20MB，对战用）和 `model/seq/model-scope.onnx`（20MB，科普页用），**都不需要另外下载，也不需要 Python**——clone 下来开箱即用。只有想重新转换模型时才需要 58MB 的原始 Keras 权重，它未上传仓库，按需从 Hugging Face 下载（见目录一节）。确保 `onnxruntime-node` 已安装（在 `package.json` 的可选依赖里，`npm install` 会装）。旧的 DoodleNet 栅格模型仍在 `model/`，作为降级备份保留。
 
 **你的拓扑：大屏是这台笔记本的 HDMI 扩展屏**，所以：
 
@@ -199,7 +199,7 @@ data/players.json             选手名单与分数存档（自动生成，仅�
 model/seq/model.onnx          CRNN V2 序列模型（20MB，对战默认）
 model/seq/model-scope.onnx    多输出科普模型（20MB，抓中间层激活用；可删，删后科普页禁用）
 model/seq/labels.json         序列模型 345 类标签顺序
-model/seq/best_model_v2.keras 原始 Keras 权重（仅重转模型时需要，可删）
+model/seq/best_model_v2.keras 原始 Keras 权重（58MB，**未上传 GitHub**，仅重转模型时需要；重转前从 https://huggingface.co/DucTai368/AI_sketch-recognition-v2 下载）
 make_scope_model.py           生成 model-scope.onnx 的脚本（doodle-seq 环境）
 model/                        旧 DoodleNet 栅格权重（降级备份），见 model/README.md
 scripts/convert_seq_onnx.py   .keras → ONNX 一次性转换脚本（doodle-seq 环境）
