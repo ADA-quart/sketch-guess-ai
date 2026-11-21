@@ -9,7 +9,8 @@
     status: $('status'), word: $('word'), hint: $('hint'), timer: $('timer'), prompt: $('prompt'),
     result: $('result'), resultTitle: $('resultTitle'), resultDetail: $('resultDetail'),
     lock: $('lockBanner'), fallback: $('fallback'), video: $('fallbackVideo'),
-    judging: $('judgingOverlay'),
+    judging: $('judgingOverlay'), judgeTitle: $('judgeTitle'), judgeText: $('judgeText'),
+    promptLabel: $('promptLabel'),
     brushSlider: $('brushSlider'), brushVal: $('brushVal')
   };
   // 笔刷滑块值是「256 基准画布上的半径」。现在 AI 端会自动把细线补粗（dilateRadius），
@@ -181,6 +182,19 @@
     ws.onerror = () => { try { ws.close(); } catch (e) {} };
   }
 
+  function showJudge(mode) {
+    activeRound = false;
+    ui.lock.classList.remove('show');
+    if (mode === 'free') {
+      ui.judgeTitle.textContent = '等待主持人裁定';
+      ui.judgeText.innerHTML = '告诉主持人你画的是什么。<br>主持人会对照 AI 的猜测，判断是否同一种。';
+    } else {
+      ui.judgeTitle.textContent = '等待主持人裁定';
+      ui.judgeText.innerHTML = 'AI 没认出来。主持人将判断这幅画是否足够像题目——<br>画得像算 AI 翻车，画得太抽象则无人得分。';
+    }
+    ui.judging.classList.add('show');
+  }
+
   function handleMessage(m) {
     if (m.type === 'hello') {
       route = m.route;
@@ -189,19 +203,32 @@
       if (m.round && m.round.active) {
         activeRound = true;
         endTime = m.round.endTime;
-        ui.word.textContent = m.round.target || '—';
+        const free = m.round.mode === 'free';
+        ui.promptLabel.textContent = free ? '自由创作' : '请画';
+        ui.word.textContent = free ? '随便画点什么' : (m.round.target || '—');
+        ui.hint.textContent = free ? '画完告诉主持人你画的是什么' : '';
         ui.prompt.classList.add('show');
         ui.result.classList.remove('show');
       }
-      if (m.round && m.round.awaitingJudge) ui.judging.classList.add('show');
+      if (m.round && m.round.awaitingJudge) showJudge(m.round.mode);
+      return;
+    }
+    if (m.type === 'mode') {
+      if (m.gameMode === 'free') {
+        ui.promptLabel.textContent = '自由创作';
+      } else {
+        ui.promptLabel.textContent = '请画';
+      }
       return;
     }
     if (m.type === 'roundStart') {
       activeRound = true;
       endTime = m.endTime;
       clearCanvas();
-      ui.word.textContent = m.word;
-      ui.hint.textContent = m.hint || '';
+      const free = m.mode === 'free';
+      ui.promptLabel.textContent = free ? '自由创作' : '请画';
+      ui.word.textContent = free ? '随便画点什么' : (m.word || '');
+      ui.hint.textContent = free ? '画完告诉主持人你画的是什么' : (m.hint || '');
       ui.prompt.classList.add('show');
       ui.result.classList.remove('show');
       ui.lock.classList.remove('show');
@@ -210,10 +237,9 @@
       return;
     }
     if (m.type === 'lock') { ui.lock.classList.add('show'); return; }
-    if (m.type === 'needJudge') {
-      activeRound = false;
-      ui.lock.classList.remove('show');
-      ui.judging.classList.add('show');
+    if (m.type === 'needJudge') { showJudge(m.mode); return; }
+    if (m.type === 'report') {
+      // 主持人已录入画手自述，画手端仅提示等待裁定
       return;
     }
     if (m.type === 'roundEnd') {

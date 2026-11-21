@@ -20,7 +20,8 @@ const DEFAULT = {
     seconds: 70, minSeconds: 60, maxSeconds: 75,
     lockThreshold: 0.72, lockStableFrames: 4, lockHoldMs: 1400,
     lockGraceMs: 8000, lockMinStrokes: 1, lockMinPoints: 8,
-    scoringMode: 'fair', judgeTimeoutMs: 45000
+    scoringMode: 'fair', judgeTimeoutMs: 45000,
+    gameMode: 'classic'
   },
   inference: {
     engine: 'sequence',

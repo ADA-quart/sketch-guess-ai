@@ -90,6 +90,9 @@ html, body {
 #resultOverlay.narrow #resultTitle { color: #7ee0ff; text-shadow: 0 0 44px rgba(80,200,255,.5); }
 #resultOverlay.fail #resultTitle { color: #ff8f9d; text-shadow: 0 0 44px rgba(255,90,110,.5); }
 #resultOverlay.abstract #resultTitle { color: #aebfe4; text-shadow: 0 0 40px rgba(150,180,230,.35); }
+#resultOverlay.free_same #resultTitle { color: #ffd166; text-shadow: 0 0 44px rgba(255,190,70,.6); }
+#resultOverlay.free_diff #resultTitle { color: #7ee8a8; text-shadow: 0 0 44px rgba(90,230,150,.55); }
+#resultOverlay.free_skip #resultTitle { color: #aebfe4; text-shadow: 0 0 40px rgba(150,180,230,.35); }
 #resultDetail { font-size: 27px; color: #d3def9; margin-top: 20px; max-width: 82%; line-height: 1.6; }
 #resultScore { font-size: 21px; color: #8fa1cc; margin-top: 20px; letter-spacing: 3px; }
 #resultPlayer { margin-top: 26px; font-size: 26px; color: #ffd88a; font-weight: 700; min-height: 0; }

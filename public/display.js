@@ -21,6 +21,7 @@
   let history = [];
   let frameCount = 0;
   let playerState = null;
+  let gameMode = 'classic';
 
   function connect() {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -52,6 +53,14 @@
       else $('rulesOverlay').classList.remove('show');
       return;
     }
+    if (m.type === 'mode') { gameMode = m.gameMode; return; }
+    if (m.type === 'report') {
+      // 画手自述录入后，大屏裁定页同步展示
+      if (judgeOverlay.classList.contains('show')) {
+        $('judgeLine').innerHTML = '画手说画的是「<b>' + escapeHtml(m.report || '—') + '</b>」';
+      }
+      return;
+    }
     if (m.type === 'players') { if (m.players) playerState = m.players; renderPlayerBar(); return; }
 
     if (m.type === 'hello') {
@@ -70,8 +79,8 @@
         startVisualRound(m.round.seconds, m.round.endTime);
         if (m.round.player) setRoundPlayer(m.round.player);
       }
-      if (m.round && m.round.awaitingJudge) showJudge(m.round.target || '—');
-      if (m.round && m.round.result) showResult(m.round.result, m.round.scoreboard);
+      if (m.round && m.round.awaitingJudge) showJudge(m.round.target || '—', m.round.mode);
+      if (m.round && m.round.result) showResult(m.round.result, m.scoreboard || m.round.scoreboard);
       return;
     }
 
@@ -85,6 +94,7 @@
     }
 
     if (m.type === 'roundStart') {
+      gameMode = m.mode || gameMode;
       startVisualRound(m.seconds, m.endTime);
       if (m.player) setRoundPlayer(m.player);
       return;
@@ -95,7 +105,11 @@
       $('lockOverlay').classList.add('show');
       return;
     }
-    if (m.type === 'needJudge') { showJudge(m.target ? m.target.word : '—'); return; }
+    if (m.type === 'needJudge') {
+      if (m.mode === 'free') showJudge(m.aiGuess || (m.top5 && m.top5[0] ? m.top5[0].zh : '—'), 'free');
+      else showJudge(m.target ? m.target.word : '—', 'classic');
+      return;
+    }
     if (m.type === 'roundEnd') {
       app.classList.remove('locked');
       $('lockOverlay').classList.remove('show');
@@ -265,9 +279,17 @@
     cctx.stroke();
   }
 
-  function showJudge(word) {
+  function showJudge(word, mode) {
     judgeOverlay.classList.add('show');
-    $('judgeWord').textContent = word || '—';
+    if (mode === 'free') {
+      $('judgeHeading').textContent = 'AI 给出了猜测 —— 请主持裁定';
+      $('judgeLine').innerHTML = 'AI 猜的是「<b>' + escapeHtml(word || '—') + '</b>」';
+      $('judgeHintLine').textContent = '主持人录入画手自述后裁定：同一种 → AI 得分　·　不是同一种 → 人类得分';
+    } else {
+      $('judgeHeading').textContent = 'AI 没认出来 —— 请主持裁定';
+      $('judgeLine').innerHTML = '谜底是「<b>' + escapeHtml(word || '—') + '</b>」';
+      $('judgeHintLine').textContent = '画得像 → AI 翻车，人类得分　·　画得太抽象 → 无人得分';
+    }
   }
 
   function showResult(result, board) {

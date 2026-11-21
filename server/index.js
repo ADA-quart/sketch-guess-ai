@@ -49,6 +49,12 @@ const stats = {
 
 const scoreboard = { ai: 0, human: 0, rounds: 0, draws: 0 };
 
+// 游戏模式：'classic'（系统出题的常规对战）/ 'free'（自由模式：画手自由画，
+// 画手口头告诉主持人自己画的是什么，主持人对照 AI 猜测裁定是否同一种）。
+// 运行时状态，不落盘；重启回到 config 默认值。
+let gameMode = config.round.gameMode === 'free' ? 'free' : 'classic';
+const VALID_MODES = new Set(['classic', 'free']);
+
 // 从灰度帧生成小缩略图，供大屏展示"AI 看到的画面"
 function makeThumb(gray, srcSize, outSize) {
   const png = new PNG({ width: outSize, height: outSize });
@@ -131,7 +137,10 @@ let round = {
   endTimer: null,
   lockTimer: null,
   judgeTimer: null,
-  awaitingJudge: false
+  awaitingJudge: false,
+  // 自由模式专用：本轮画手自述的“我画的是什么”，以及对 AI 猜测的裁定
+  selfReport: null,     // 主持人录入的画手自述文本
+  judgeVerdict: null    // 'same'（同一种，AI 得分）/ 'diff'（不同种，人类得分）
 };
 
 /* ------------------------------------------------------------------ */
@@ -206,14 +215,17 @@ const server = http.createServer(async (req, res) => {
       log: ENGINE_LOG.slice(-20),
       decoyMode: config.inference.decoyMode,
       scoringMode: config.round.scoringMode,
+      gameMode,
       inputSize: engine.size,
       clients: { draw: drawClients.size, display: displayClients.size, host: hostClients.size },
       round: {
         active: round.active, id: round.id, endTime: round.endTime,
+        mode: round.mode,
         target: round.target ? round.target.word : null,
-    locked: round.locked, result: round.result, top5: round.top5,
-    awaitingJudge: round.awaitingJudge
-  },
+        locked: round.locked, result: round.result, top5: round.top5,
+        awaitingJudge: round.awaitingJudge,
+        selfReport: round.selfReport, judgeVerdict: round.judgeVerdict
+      },
       scoreboard,
       players: players.snapshot(),
       science: { ready: probe.ready, clients: scienceClients.size },
@@ -242,9 +254,26 @@ const server = http.createServer(async (req, res) => {
       tablet: config.tablet,
       display: config.display,
       scoringMode: config.round.scoringMode,
+      gameMode,
       engine: config.inference.engine || 'raster',
       route: engine.route
     });
+  }
+
+  // 游戏模式：读取 / 切换。切换只影响后续回合，进行中的回合不受影响。
+  if (pathname === '/api/mode' && req.method === 'GET') {
+    return sendJSON(res, 200, { ok: true, gameMode });
+  }
+  if (pathname === '/api/mode' && req.method === 'POST') {
+    try {
+      const body = await readBody(req);
+      const next = body.gameMode || body.mode;
+      if (!VALID_MODES.has(next)) return sendJSON(res, 400, { ok: false, error: 'invalid mode' });
+      setGameMode(next);
+      return sendJSON(res, 200, { ok: true, gameMode });
+    } catch (e) {
+      return sendJSON(res, 400, { ok: false, error: e.message });
+    }
   }
 
   if (pathname === '/api/labels') return sendJSON(res, 200, engine.labelsForApi());
@@ -324,14 +353,34 @@ const server = http.createServer(async (req, res) => {
   }
 
   if (pathname === '/api/lock' && req.method === 'POST') {
-    if (round.active) endRound('host');
+    if (round.active && !round.awaitingJudge) endRound('host');
     return sendJSON(res, 200, { ok: true });
   }
 
+  // 自由模式：主持人录入画手自述（"画手说自己画的是什么"）
+  if (pathname === '/api/report' && req.method === 'POST') {
+    try {
+      const body = await readBody(req);
+      const ok = submitReport(String(body.report || '').trim());
+      return sendJSON(res, ok ? 200 : 400, { ok });
+    } catch (e) {
+      return sendJSON(res, 400, { ok: false, error: e.message });
+    }
+  }
+
+  // 裁定：classic 用 verdict=like/unlike；free 用 verdict=same/diff
   if (pathname === '/api/judge' && req.method === 'POST') {
     try {
       const body = await readBody(req);
-      const ok = judgeRound(body.verdict === 'like' ? 'like' : 'unlike');
+      const verdict = (body.verdict === 'like' || body.verdict === 'unlike' ||
+                       body.verdict === 'same' || body.verdict === 'diff' ||
+                       body.verdict === 'skip')
+                      ? body.verdict : null;
+      // 自由模式：裁定与自述一并提交，避免两次请求竞态导致自述丢失
+      if ((verdict === 'same' || verdict === 'diff') && typeof body.report === 'string' && body.report.trim()) {
+        round.selfReport = body.report.trim().slice(0, 60);
+      }
+      const ok = judgeRound(verdict);
       return sendJSON(res, ok ? 200 : 400, { ok });
     } catch (e) {
       return sendJSON(res, 400, { ok: false, error: e.message });
@@ -447,13 +496,28 @@ function publicRound() {
   return {
     active: round.active,
     id: round.id,
+    mode: round.mode || 'classic',
     endTime: round.endTime,
     seconds: round.seconds,
     target: round.active && round.target ? round.target.word : null,
     player: round.player,
     locked: round.locked,
-    result: round.result
+    result: round.result,
+    awaitingJudge: round.awaitingJudge,
+    selfReport: round.selfReport,
+    judgeVerdict: round.judgeVerdict
   };
+}
+
+function setGameMode(mode) {
+  if (!VALID_MODES.has(mode) || mode === gameMode) return;
+  gameMode = mode;
+  log(`[模式] 切换到${mode === 'free' ? '自由模式' : '对战模式'}`);
+  const payload = { type: 'mode', gameMode };
+  broadcast(displayClients, payload);
+  broadcast(drawClients, payload);
+  broadcast(hostClients, payload);
+  broadcast(scienceClients, payload);
 }
 
 function notifyDrawOnline() {
@@ -565,9 +629,12 @@ wssHost.on('connection', ws => {
     let msg;
     try { msg = JSON.parse(data.toString()); } catch (e) { return; }
     if (msg.type === 'start') startRound(msg.word || null);
-    else if (msg.type === 'lock' && round.active) endRound('host');
-    else if (msg.type === 'judge') judgeRound(msg.verdict === 'like' ? 'like' : 'unlike');
+    else if (msg.type === 'lock' && round.active && !round.awaitingJudge) endRound('host');
+    else if (msg.type === 'judge') judgeRound(msg.verdict || null);
     else if (msg.type === 'reset') resetRound();
+    else if (msg.type === 'mode' && VALID_MODES.has(msg.gameMode || msg.mode)) {
+      setGameMode(msg.gameMode || msg.mode);
+    } else if (msg.type === 'report') submitReport(String(msg.report || '').trim());
   });
   ws.on('close', () => hostClients.delete(ws));
   ws.on('error', () => {});
@@ -721,15 +788,20 @@ function startRound(requested) {
   round.lockTimer = null;
   round.judgeTimer = null;
   round.awaitingJudge = false;
+  round.selfReport = null;
+  round.judgeVerdict = null;
   pendingFrame = null;
   if (flushTimer) { clearTimeout(flushTimer); flushTimer = null; }
 
+  const isFree = gameMode === 'free';
+  round.mode = gameMode;
   round.id++;
   round.active = true;
   round.seconds = config.round.seconds;
   round.startTime = Date.now();
   round.endTime = round.startTime + round.seconds * 1000;
-  round.target = pickTarget(requested);
+  // 自由模式没有系统谜底：AI 纯凭画面猜，画手自述由主持人录入
+  round.target = isFree ? null : pickTarget(requested);
   // 绑定本轮选手：自动轮转时切到下一位，否则用当前选中的
   round.player = players.beginRound();
   round.playerId = round.player ? round.player.id : null;
@@ -739,16 +811,19 @@ function startRound(requested) {
   round.lockTopIndex = -1;
   round.result = null;
 
-  log(`[回合 ${round.id}] 开始：${round.target.word} (${round.target.class}, 索引 ${round.target.index}) ${round.seconds}s，路线 ${engine.route}${round.player ? `，选手 ${round.player.name}` : ''}`);
+  log(`[回合 ${round.id}] 开始（${isFree ? '自由模式' : '对战模式'}）：${isFree ? '画手自由作画' : round.target.word + ' (' + round.target.class + ', 索引 ' + round.target.index + ')'} ${round.seconds}s，路线 ${engine.route}${round.player ? `，选手 ${round.player.name}` : ''}`);
 
   broadcast(drawClients, {
-    type: 'roundStart', roundId: round.id, word: round.target.word,
-    hint: round.target.hint,
+    type: 'roundStart', roundId: round.id,
+    mode: round.mode,
+    word: isFree ? null : round.target.word,
+    hint: isFree ? '' : round.target.hint,
     seconds: round.seconds, endTime: round.endTime, route: engine.route
   });
   // 大屏不接收谜底，避免画面泄露给 AI 侧观众
   broadcast(displayClients, {
-    type: 'roundStart', roundId: round.id, seconds: round.seconds,
+    type: 'roundStart', roundId: round.id, mode: round.mode,
+    seconds: round.seconds,
     endTime: round.endTime, route: engine.route, player: round.player
   });
   broadcast(hostClients, { type: 'roundStart', round: publicRound() });
@@ -761,6 +836,32 @@ function buildResult(key, hitRank) {
   const target = round.target ? round.target.word : '?';
   const guess = round.top5[0] ? round.top5[0].zh : '无';
   const conf = round.top5[0] ? Math.round(round.top5[0].score * 100) : 0;
+  const report = round.selfReport || '未填写'; // 自由模式：画手自述（可留空）
+  const reportPhrase = round.selfReport ? `画手说画的是「${report}」` : '画手未填写自述';
+
+  // ---- 自由模式：主持人裁定 AI 猜测与画手自述是否同一种，简单二分计分 ----
+  if (key === 'free_same') {
+    return {
+      key, title: '同一种 · AI 得分', winner: 'ai', hitRank: 1,
+      detail: `${reportPhrase}，AI 猜的是「${guess}」。主持人判定两种描述指的是同一样东西——AI +2。`,
+      points: { ai: 2, human: 0 }, mode: 'free', report, aiGuess: guess
+    };
+  }
+  if (key === 'free_diff') {
+    return {
+      key, title: '不是同一种 · 人类得分', winner: 'human', hitRank: 0,
+      detail: `${reportPhrase}，AI 猜的是「${guess}」。主持人判定两者不是同一样东西——画手 +2。`,
+      points: { ai: 0, human: 2 }, mode: 'free', report, aiGuess: guess
+    };
+  }
+  if (key === 'free_skip') {
+    return {
+      key, title: '本轮跳过 · 无人得分', winner: 'none', hitRank: 0,
+      detail: `主持跳过本轮。AI 曾猜「${guess}」，本轮双方均不得分。`,
+      points: { ai: 0, human: 0 }, mode: 'free', report, aiGuess: guess
+    };
+  }
+
   if (key === 'ai') {
     return {
       key, title: 'AI 猜中', winner: 'ai', hitRank: 1,
@@ -799,7 +900,7 @@ function settleRound(key, reason, hitRank) {
 
   scoreboard.ai += result.points.ai;
   scoreboard.human += result.points.human;
-  if (result.key === 'abstract') scoreboard.draws++;
+  if (result.key === 'abstract' || result.key === 'free_skip') scoreboard.draws++;
   scoreboard.rounds++;
 
   // 记到本轮选手名下（个人分 = 人类得分）
@@ -808,6 +909,7 @@ function settleRound(key, reason, hitRank) {
   log(`[回合 ${round.id}] 结算（${reason}）：${result.title} — ${result.detail}`);
   const payload = {
     type: 'roundEnd', result, reason,
+    mode: round.mode,
     top5: round.top5,
     target: round.target ? { word: round.target.word, en: round.target.class } : null,
     scoreboard: { ...scoreboard },
@@ -819,9 +921,41 @@ function settleRound(key, reason, hitRank) {
   broadcastPlayers();
 }
 
-// 主持裁定：画得像 => AI 翻车人类得分；画得抽象 => 无人得分
+// 自由模式：主持人录入画手自述。仅在等待裁定阶段可写。
+function submitReport(text) {
+  if (!round.awaitingJudge || (round.mode || 'classic') !== 'free') return false;
+  if (typeof text !== 'string' || !text.trim()) return false;
+  round.selfReport = text.slice(0, 60);
+  log(`[回合 ${round.id}] 画手自述：${round.selfReport}`);
+  // 把已录入的自述同步给三端，主持人可确认
+  const payload = {
+    type: 'report', mode: 'free', report: round.selfReport,
+    top5: round.top5
+  };
+  broadcast(displayClients, payload);
+  broadcast(drawClients, payload);
+  broadcast(hostClients, payload);
+  return true;
+}
+
+// 主持裁定
+//  classic：like=>AI翻车人类得分；unlike=>无人得分
+//  free：   same =>AI猜中(AI+2)；diff =>不是同一种(人类+2)
 function judgeRound(verdict) {
   if (!round.awaitingJudge) return false;
+  const isFree = (round.mode || 'classic') === 'free';
+  if (isFree) {
+    if (verdict === 'skip') {
+      log(`[回合 ${round.id}] 自由模式：主持跳过本轮（无人得分）`);
+      settleRound('free_skip', 'judge:skip', 0);
+      return true;
+    }
+    if (verdict !== 'same' && verdict !== 'diff') return false;
+    log(`[回合 ${round.id}] 自由模式裁定：${verdict === 'same' ? '同一种' : '不是同一种'}（自述：${round.selfReport || '未填写'}）`);
+    settleRound(verdict === 'same' ? 'free_same' : 'free_diff', 'judge:' + verdict, verdict === 'same' ? 1 : 0);
+    return true;
+  }
+  if (verdict !== 'like' && verdict !== 'unlike') verdict = 'unlike';
   log(`[回合 ${round.id}] 主持裁定：${verdict}`);
   settleRound(verdict === 'like' ? 'fail' : 'abstract', 'judge:' + verdict, 0);
   return true;
@@ -839,6 +973,25 @@ function endRound(reason) {
   }
   round.active = false;
   pendingFrame = null;
+
+  // ---- 自由模式：无系统谜底，回合结束直接进入"录入自述 + 裁定"阶段 ----
+  if ((round.mode || 'classic') === 'free') {
+    round.awaitingJudge = true;
+    round.result = null;
+    round.selfReport = null;
+    round.judgeVerdict = null;
+    const aiGuess = round.top5[0] ? round.top5[0].zh : '无';
+    log(`[回合 ${round.id}] 自由模式作画结束，AI 猜测：${aiGuess}。等待主持人录入画手自述并裁定`);
+    const payload = {
+      type: 'needJudge', mode: 'free', reason, top5: round.top5,
+      target: null, aiGuess
+    };
+    broadcast(displayClients, payload);
+    broadcast(drawClients, payload);
+    broadcast(hostClients, payload);
+    // 自由模式裁定不设自动超时：主持人录入完自述再裁定
+    return;
+  }
 
   const targetIndex = round.target ? round.target.index : -1;
   const hitRank = round.top5.findIndex(t => t.index === targetIndex) + 1;
@@ -889,6 +1042,8 @@ function resetRound() {
   round.top5 = [];
   round.result = null;
   round.target = null;
+  round.selfReport = null;
+  round.judgeVerdict = null;
   pendingFrame = null;
   broadcast(displayClients, { type: 'roundReset' });
   broadcast(drawClients, { type: 'roundReset' });

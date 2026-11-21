@@ -6,6 +6,7 @@
   },
   "round": {
     "seconds": 70,
+    "gameMode": "classic",
     "minSeconds": 60,
     "maxSeconds": 75,
     "lockThreshold": 0.72,

@@ -42,6 +42,19 @@
     .addrow input{min-width:0;flex:1}
     .switch{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:#4a5680}
     .switch input{min-width:0;width:18px;height:18px}
+    .modeswitch{display:inline-flex;border:1px solid #cbd4e6;border-radius:9px;overflow:hidden}
+    .modeswitch button{border:0;border-radius:0;padding:9px 16px;background:#eef2fb;color:#5a6890;font-size:14px}
+    .modeswitch button.on{background:#3454d1;color:#fff}
+    #freePanel{display:none;border:2px solid #3f7fd1;background:#f2f8ff}
+    #freePanel.show{display:block}
+    #freePanel h2{margin:0 0 6px;font-size:21px;color:#2659a8}
+    #freePanel p{margin:0 0 14px;color:#4a5f86;font-size:14px}
+    #reportInput{width:100%;min-width:0;font-size:16px;padding:12px;margin-bottom:12px}
+    .free-btns{display:flex;gap:12px;flex-wrap:wrap}
+    .ai-win{background:#3454d1;color:#fff;font-size:16px;padding:13px 18px}
+    .human-win{background:#2e9e6b;color:#fff;font-size:16px;padding:13px 18px}
+    .guessbox{background:#eaf0ff;border-radius:8px;padding:10px 14px;margin:8px 0 16px;font-size:15px;color:#2b3a63}
+    .guessbox b{color:#3454d1;font-size:18px}
   </style>
 </head>
 <body>
@@ -58,6 +71,22 @@
     </div>
   </section>
 
+  <section class="panel" id="freePanel">
+    <h2>自由模式 · 裁定本轮</h2>
+    <p>AI 根据画面给出的猜测是：</p>
+    <div class="guessbox">AI 猜：<b id="freeGuess">—</b></div>
+    <p>画手口头说自己画的是什么？<b style="color:#8893b0;font-weight:400">（可留空，画手走了也能直接裁定）</b></p>
+    <input id="reportInput" placeholder="例如：我画的是一只猫（可选）" maxlength="60">
+    <div class="free-btns">
+      <button class="ai-win" id="freeSame">是同一种 · AI 得分</button>
+      <button class="human-win" id="freeDiff">不是同一种 · 人类（画手）得分</button>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="ghost" id="freeSkip">跳过本轮 · 无人得分</button>
+    </div>
+    <p id="freeReportSaved" style="margin:12px 0 0;color:#2e9e6b;font-weight:700;min-height:18px"></p>
+  </section>
+
   <section class="panel" id="playersPanel">
     <h2 class="sec">选手与发奖榜</h2>
     <div class="addrow row">
@@ -71,6 +100,14 @@
   </section>
 
   <section class="panel">
+    <div class="row" style="margin-bottom:14px">
+      <span style="color:#7a86a6;font-size:14px">游戏模式：</span>
+      <div class="modeswitch">
+        <button id="modeClassic">对战（系统出题）</button>
+        <button id="modeFree">自由（画手自述）</button>
+      </div>
+      <span id="modeHint" style="color:#98a2bd;font-size:12px"></span>
+    </div>
     <div class="row">
       <select id="word"><option value="">随机出题</option></select>
       <button class="primary" id="start">开始本轮</button>
@@ -90,6 +127,7 @@
     <div class="kv">
       <span>实际推理路线</span><strong id="route">检测中…</strong>
       <span>结算模式</span><strong id="mode">—</strong>
+      <span>游戏模式</span><strong id="gmode">—</strong>
       <span>骗AI模式</span><span id="decoy">—</span>
       <span>平板 / 大屏</span><span id="clients">—</span>
       <span>当前回合</span><span id="round">未开始</span>
@@ -116,25 +154,62 @@
     ws=new WebSocket(proto+'//'+location.host+'/ws/host');
     ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(err){return}
       if(m.type==='players'){ renderPlayers(m); return; }
+      if(m.type==='mode'){ applyMode(m.gameMode); return; }
+      if(m.type==='report'){ $('freeReportSaved').textContent='画手自述已录入：'+m.report; return; }
       if(m.type==='hello'||m.type==='roundStart'||m.type==='roundEnd'||m.type==='roundReset'||m.type==='needJudge'){
         if(m.players) renderPlayers(m);
         if(m.round) renderRound(m.round);
         if(m.scoreboard) renderScore(m.scoreboard);
-        if(m.type==='roundStart'){$('judgePanel').classList.remove('show');log('回合开始 #'+m.round.id);}
-        if(m.type==='needJudge'){
-          $('judgePanel').classList.add('show');
-          $('judgeWord').textContent=m.target?m.target.word:'—';
-          $('judgeGuess').textContent=m.top5&&m.top5[0]?m.top5[0].zh:'无';
-          log('AI 未命中，等待裁判裁定');
+        if(m.type==='roundStart'){
+          $('judgePanel').classList.remove('show');
+          $('freePanel').classList.remove('show');
+          $('freeReportSaved').textContent='';
+          log('回合开始 #'+m.round.id+(m.round.mode==='free'?'（自由模式）':''));
         }
-        if(m.type==='roundEnd'){$('judgePanel').classList.remove('show');log('结算：'+m.result.title);}
-        if(m.type==='roundReset')$('judgePanel').classList.remove('show');
+        if(m.type==='needJudge'){
+          if(m.mode==='free'){
+            $('freePanel').classList.add('show');
+            $('freeGuess').textContent=m.aiGuess||(m.top5&&m.top5[0]?m.top5[0].zh:'无');
+            $('reportInput').value='';
+            $('freeReportSaved').textContent='';
+            log('自由模式作画结束，AI 猜：'+(''+$('freeGuess').textContent)+'。请录入画手自述并裁定');
+          } else {
+            $('judgePanel').classList.add('show');
+            $('judgeWord').textContent=m.target?m.target.word:'—';
+            $('judgeGuess').textContent=m.top5&&m.top5[0]?m.top5[0].zh:'无';
+            log('AI 未命中，等待裁判裁定');
+          }
+        }
+        if(m.type==='roundEnd'){
+          $('judgePanel').classList.remove('show');
+          $('freePanel').classList.remove('show');
+          log('结算：'+m.result.title);
+        }
+        if(m.type==='roundReset'){
+          $('judgePanel').classList.remove('show');
+          $('freePanel').classList.remove('show');
+        }
       }
     };
     ws.onclose=()=>setTimeout(connect,1500);
   }
-  function renderRound(r){$('round').textContent=r.awaitingJudge?'等待裁判裁定':(r.active?('第 '+r.id+' 轮进行中'+(r.locked?' · 已锁定':'')):'未进行');}
+  function renderRound(r){$('round').textContent=r.awaitingJudge?(r.mode==='free'?'自由模式待裁定':'等待裁判裁定'):(r.active?('第 '+r.id+' 轮进行中'+(r.locked?' · 已锁定':'')):'未进行');}
   function renderScore(s){$('score').textContent='AI '+s.ai+' : '+s.human+' 人类 · 平局 '+(s.draws||0);}
+
+  let curMode='classic';
+  function applyMode(m){
+    curMode=(m==='free')?'free':'classic';
+    $('modeClassic').classList.toggle('on',curMode==='classic');
+    $('modeFree').classList.toggle('on',curMode==='free');
+    $('word').disabled=(curMode==='free');
+    $('modeHint').textContent=curMode==='free'
+      ? '自由模式：画手随便画，画手口头说画的是什么，你对照 AI 裁定。'
+      : '对战模式：系统出题，AI 猜，未命中时裁定。';
+    $('gmode').textContent=curMode==='free'?'自由（画手自述）':'对战（系统出题）';
+  }
+  function setMode(m){api('/api/mode',{gameMode:m});applyMode(m);}
+  $('modeClassic').onclick=()=>setMode('classic');
+  $('modeFree').onclick=()=>setMode('free');
 
   function renderPlayers(m){
     const ps=m.players||[], cur=m.currentId;
@@ -183,10 +258,25 @@
   $('judgeLike').onclick=()=>judge('like');
   $('judgeUnlike').onclick=()=>judge('unlike');
 
+  // 自由模式：先录入画手自述，再裁定是否同一种
+  function submitReport(){const v=$('reportInput').value.trim();if(!v){$('freeReportSaved').style.color='#8893b0';$('freeReportSaved').textContent='自述可留空，直接裁定即可';return;}api('/api/report',{report:v});}
+  $('reportInput').addEventListener('keydown',e=>{if(e.key==='Enter')submitReport();});
+  function freeJudge(v){
+    const rep=$('reportInput').value.trim();
+    // 摆摊场景：自述可留空，画手画完就走也不影响裁定
+    fetch('/api/judge',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({verdict:v,report:rep})}).then(r=>{if(!r.ok)log('裁定失败：本轮可能已结算');});
+  }
+  $('freeSame').onclick=()=>freeJudge('same');
+  $('freeDiff').onclick=()=>freeJudge('diff');
+  $('freeSkip').onclick=()=>{
+    if(confirm('确定跳过本轮？本轮双方均不得分。')) judge('skip');
+  };
+
   function poll(){
     fetch('/api/status').then(r=>r.json()).then(s=>{
       $('route').textContent=s.route;
       $('mode').textContent=s.scoringMode==='classic'?'经典（未命中即人类得分）':'公平（未命中需裁定）';
+      if(s.gameMode && s.gameMode!==curMode) applyMode(s.gameMode);
       $('decoy').innerHTML='<span class="pill'+(s.decoyMode?'':' off')+'">'+(s.decoyMode?'开启':'关闭')+'</span>';
       $('clients').textContent=s.clients.draw+' 台 / '+s.clients.display+' 台';
       renderRound(s.round);
